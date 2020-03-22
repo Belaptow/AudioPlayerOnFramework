@@ -38,7 +38,8 @@
                    Margin="5, 0, 5, 0" 
                    MouseEnter="ImageButton_MouseEnter" 
                    MouseLeave="ImageButton_MouseLeave"
-                   MouseUp="contentControlSelectWorkingFolder_MouseUp"/>
+                   MouseUp="contentControlSelectWorkingFolder_MouseUp"
+                   ToolTip="Выбор папки аудиозаписей"/>
             
             <Image Name="contentControlDeleteTrack" 
                    Source="/bin.png"
@@ -46,7 +47,9 @@
                    Width="20"
                    Margin="5, 0, 5, 0" 
                    MouseEnter="ImageButton_MouseEnter" 
-                   MouseLeave="ImageButton_MouseLeave"/>
+                   MouseLeave="ImageButton_MouseLeave"
+                   ToolTip="Удаление выбранного трека"
+                   MouseUp="contentControlDeleteTrack_MouseUp"/>
             
             <Image Name="contentControlAddTrack" 
                    Source="/plus.png"
@@ -54,7 +57,8 @@
                    Width="20"
                    Margin="5, 0, 5, 0" 
                    MouseEnter="ImageButton_MouseEnter" 
-                   MouseLeave="ImageButton_MouseLeave"/>
+                   MouseLeave="ImageButton_MouseLeave"
+                   ToolTip="Добавление треков"/>
             
             <Image Name="contentControlRefreshGrid" 
                    Source="/refresh.png"
@@ -63,7 +67,8 @@
                    Margin="5, 0, 5, 0" 
                    MouseEnter="ImageButton_MouseEnter" 
                    MouseLeave="ImageButton_MouseLeave"
-                   MouseUp="contentControlRefreshGrid_MouseUp"/>
+                   MouseUp="contentControlRefreshGrid_MouseUp"
+                   ToolTip="Обновление списка треков"/>
         </StackPanel>
 
         <DataGrid Name="tracksDataGrid"

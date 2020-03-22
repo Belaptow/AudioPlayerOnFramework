@@ -180,7 +180,7 @@ namespace AudioPlayer
         }
         #endregion
 
-        //Получение длины аудио файла в формате мм:сс
+        //Получение длины трека в формате мм:сс
         private string GetAudioLength(string filePath)
         {
             try
@@ -206,6 +206,7 @@ namespace AudioPlayer
             }
         }
 
+        //Получение длины трека в формате timespan
         private TimeSpan GetAudioTimeSpanLength(string filePath)
         {
             try
@@ -257,6 +258,56 @@ namespace AudioPlayer
             {
                 Debug.WriteLine("\n" + ex + "\n");
             }
+        }
+
+        //Удаление файла
+        private void contentControlDeleteTrack_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                //Debug.WriteLine("Реакция на нажатие кнопки удаления");
+                if (tracksDataGrid.SelectedItems.Count == 0)
+                {
+                    //Debug.WriteLine("Не выбраны треки");
+                    return;
+                }
+                //Debug.WriteLine("Треки выбраны");
+                string caption = IsMoreThanOneTrackSelected() ? "Удаление треков" : "Удаление трека";
+                string message = IsMoreThanOneTrackSelected() ? "Вы уверены, что хотите удалить выбранные треки?" : "Вы уверены, что хотите удалить выбранный трек?";
+                System.Windows.MessageBoxButton button = System.Windows.MessageBoxButton.YesNo;
+                if (System.Windows.MessageBox.Show(message, caption, button) == MessageBoxResult.Yes)
+                {
+                    Debug.WriteLine("Начало удаления");
+                    foreach(Track trackToDelete in tracksDataGrid.SelectedItems)
+                    {
+                        //Debug.WriteLine("Удаление " + trackToDelete.name);
+                        File.Delete(trackToDelete.filePath);
+                        //Debug.WriteLine("Файл удалён");
+                        tracksList.Remove(trackToDelete);
+                        //Debug.WriteLine("Элемент удалён");
+                    }
+                    tracksDataGrid.ItemsSource = null;
+                    //Debug.WriteLine("Сорс = null");
+                    tracksDataGrid.ItemsSource = tracksList;
+                    //Debug.WriteLine("Сорс = ЛИСТ");
+                    //RefreshDataGrid();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        //Проверка на кол-во выбранных треков
+        private bool IsMoreThanOneTrackSelected()
+        {
+            if (tracksDataGrid.SelectedItems.Count > 1)
+            {
+                //System.Windows.MessageBox.Show("Выбрано больше одного");
+                return true;
+            }
+            return false;
         }
     }
 
