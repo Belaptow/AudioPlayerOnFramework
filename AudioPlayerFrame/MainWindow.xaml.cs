@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Configuration;
 using System.Xml;
+using System.Windows.Forms;
 
 
 namespace AudioPlayer
@@ -41,6 +42,7 @@ namespace AudioPlayer
         public WaveFileReader wavReader;
         public Mp3FileReader mp3Reader;
         public XmlDocument settingsFile = new XmlDocument();
+        public string pathToSettingsFile = AppDomain.CurrentDomain.BaseDirectory + @"\Settings.xml";
         #endregion
 
         public MainWindow()
@@ -48,14 +50,14 @@ namespace AudioPlayer
             try
             {
                 InitializeComponent();
-                settingsFile.Load(exePath + @"\Settings.xml");
+                settingsFile.Load(pathToSettingsFile);
                 Debug.WriteLine("\n INITIALIZING \n");
                 Debug.WriteLine("\nПуть к исполняемогу файлу: " + exePath + "\n");
                 if (settingsFile.DocumentElement["firstLaunch"].InnerText == "true")
                 {
                     
                     Debug.WriteLine("\nПЕРВЫЙ ЗАПУСК\n");
-                    MessageBox.Show("Первый запуск");
+                    System.Windows.MessageBox.Show("Первый запуск");
                     settingsFile.DocumentElement["firstLaunch"].InnerText = "false";
                     settingsFile.DocumentElement["workingFolder"].InnerText = exePath + workingFolderPath;
                     System.IO.Directory.CreateDirectory(settingsFile.DocumentElement["workingFolder"].InnerText);
@@ -64,8 +66,7 @@ namespace AudioPlayer
                 //System.IO.Directory.CreateDirectory(workingFolderPath);
                 workingFolderPath = settingsFile.DocumentElement["workingFolder"].InnerText;
                 RefreshDataGrid();
-                tracksDataGrid.SelectedIndex = 0;
-                settingsFile.Save(exePath + @"\Settings.xml");
+                settingsFile.Save(pathToSettingsFile);
             }
             catch (Exception ex)
             {
@@ -113,6 +114,10 @@ namespace AudioPlayer
                     tracksList.Add(newTrack);
                 }
                 tracksDataGrid.ItemsSource = tracksList;
+                if (tracksDataGrid.Items.Count > 0)
+                {
+                    tracksDataGrid.SelectedIndex = 0;
+                }
             }
             catch (Exception ex)
             {
@@ -162,13 +167,13 @@ namespace AudioPlayer
 
         #region Отображение кнопок-картинок
         //Увеличение/уменьшение размера изображения при наведении мышью
-        private void ImageButton_MouseEnter(object sender, MouseEventArgs e)
+        private void ImageButton_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
             ((Image)sender).Width += 1;
             ((Image)sender).Height += 1;
         }
 
-        private void ImageButton_MouseLeave(object sender, MouseEventArgs e)
+        private void ImageButton_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
             ((Image)sender).Width -= 1;
             ((Image)sender).Height -= 1;
@@ -237,7 +242,16 @@ namespace AudioPlayer
         {
             try
             {
-                
+                FolderBrowserDialog fbd = new FolderBrowserDialog();
+                fbd.SelectedPath = workingFolderPath;
+                fbd.Description = "Выберите папку для аудиозаписей";
+                if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    settingsFile.DocumentElement["workingFolder"].InnerText = fbd.SelectedPath;
+                    workingFolderPath = fbd.SelectedPath;
+                    settingsFile.Save(pathToSettingsFile);
+                    RefreshDataGrid();
+                }
             }
             catch (Exception ex)
             {
