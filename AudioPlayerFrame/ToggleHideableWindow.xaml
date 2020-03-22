@@ -1,0 +1,24 @@
+﻿<Window x:Class="AudioPlayer.ToggleHideableWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AudioPlayer"
+        mc:Ignorable="d"
+        Title="ToggleHideableWindow" Height="20" Width="20"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Window.Background>
+        <SolidColorBrush Opacity="0" />
+    </Window.Background>
+    <Grid>
+        <Button Name="toggleAttachedWindowButton"
+                Content=">"
+                FontSize="11"
+                Click="toggleAttachedWindowButton_Click"
+                Background="White"
+                ToolTip="test"/>
+    </Grid>
+</Window>
