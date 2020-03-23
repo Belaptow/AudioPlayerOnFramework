@@ -58,7 +58,8 @@
                    Margin="5, 0, 5, 0" 
                    MouseEnter="ImageButton_MouseEnter" 
                    MouseLeave="ImageButton_MouseLeave"
-                   ToolTip="Добавление треков"/>
+                   ToolTip="Добавление треков"
+                   MouseUp="contentControlAddTrack_MouseUp"/>
             
             <Image Name="contentControlRefreshGrid" 
                    Source="/refresh.png"
@@ -186,14 +187,16 @@
                        Height="20"
                        Margin="5, 0, 5, 0"
                        MouseEnter="ImageButton_MouseEnter" 
-                       MouseLeave="ImageButton_MouseLeave"/>
+                       MouseLeave="ImageButton_MouseLeave"
+                       MouseUp="playerControlPlay_MouseUp"/>
                 <Image Name="playerControlPause"
                        Source="/pause.png" 
                        Width="20"
                        Height="20"
                        Margin="5, 0, 5, 0"
                        MouseEnter="ImageButton_MouseEnter" 
-                       MouseLeave="ImageButton_MouseLeave"/>
+                       MouseLeave="ImageButton_MouseLeave"
+                       MouseUp="playerControlPause_MouseUp"/>
                 <Image Name="playerControlNext"
                        Source="/next.png" 
                        Width="20"

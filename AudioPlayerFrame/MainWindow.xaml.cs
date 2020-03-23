@@ -21,6 +21,7 @@ using System.Globalization;
 using System.Configuration;
 using System.Xml;
 using System.Windows.Forms;
+using System.Threading;
 
 
 namespace AudioPlayer
@@ -39,8 +40,8 @@ namespace AudioPlayer
         public string workingFolderPath = @"defaultWorkingFolder";
         public string exePath = AppDomain.CurrentDomain.BaseDirectory;
         public string[] allowedExtensions = new string[] { ".wav", ".mp3" };
-        public WaveFileReader wavReader;
-        public Mp3FileReader mp3Reader;
+        public AudioFileReader mainReader;
+        public WaveOutEvent outputDevice;
         public XmlDocument settingsFile = new XmlDocument();
         public string pathToSettingsFile = AppDomain.CurrentDomain.BaseDirectory + @"\Settings.xml";
         #endregion
@@ -91,7 +92,7 @@ namespace AudioPlayer
             }
         }
 
-        //Обновление датагрида
+        //Обновление датагрида (избегать излишних вызовов, занимает файлы секунды на 2)
         public void RefreshDataGrid()
         {
             try
@@ -232,6 +233,8 @@ namespace AudioPlayer
             }
         }
 
+        #region Управление содержимым
+
         //Обновление датагрида кнопкой
         private void contentControlRefreshGrid_MouseUp(object sender, MouseButtonEventArgs e)
         {
@@ -277,7 +280,7 @@ namespace AudioPlayer
                 System.Windows.MessageBoxButton button = System.Windows.MessageBoxButton.YesNo;
                 if (System.Windows.MessageBox.Show(message, caption, button) == MessageBoxResult.Yes)
                 {
-                    Debug.WriteLine("Начало удаления");
+                    //Debug.WriteLine("Начало удаления");
                     foreach(Track trackToDelete in tracksDataGrid.SelectedItems)
                     {
                         //Debug.WriteLine("Удаление " + trackToDelete.name);
@@ -309,6 +312,112 @@ namespace AudioPlayer
             }
             return false;
         }
+
+        //Добавление файла
+        private void contentControlAddTrack_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Title = "Выбор файлов";
+                ofd.Filter = "Audio files|*.mp3;*.wav";
+                ofd.FilterIndex = 0;
+                ofd.InitialDirectory = workingFolderPath;
+                ofd.Multiselect = true;
+                if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    foreach(string file in ofd.FileNames)
+                    {
+                        try
+                        {
+                            File.Copy(file, workingFolderPath + @"\" + System.IO.Path.GetFileName(file));
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("\nИСКЛЮЧЕНИЕ В ЦИКЛЕ: " + ex + "\n");
+                            continue;
+                        }
+                    }
+                    RefreshDataGrid();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        #endregion
+
+        #region Управление воспроизведением
+
+        public void Timer()
+        {
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
+                try
+                {
+                    while(outputDevice.PlaybackState == PlaybackState.Playing)
+                    {
+                        Dispatcher.Invoke((Action)delegate()
+                        {
+                            playerControlSlider.Value = mainReader.CurrentTime.TotalSeconds;
+                        });
+                        Thread.Sleep(100);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("\n" + ex + "\n");
+                }
+            }).Start();
+        }
+
+        //Воспроизведение выбранной композиции
+        private void playerControlPlay_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing) return;
+                if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Paused)
+                {
+                    outputDevice.Play();
+                    Timer();
+                    return;
+                }
+
+                if (IsMoreThanOneTrackSelected()) return;
+
+                outputDevice = new WaveOutEvent();
+                mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath);
+                outputDevice.Init(mainReader);
+                outputDevice.Play();
+                Timer();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        //Пауза
+        private void playerControlPause_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing)
+                {
+                    outputDevice.Pause();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        #endregion
     }
 
     public class Track
