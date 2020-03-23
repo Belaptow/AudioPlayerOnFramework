@@ -48,8 +48,8 @@ namespace AudioPlayer
         public AudioFileReader mainReader;
         public WaveOutEvent outputDevice;
 
-        public XmlDocument settingsFile = new XmlDocument();
-        public string pathToSettingsFile = AppDomain.CurrentDomain.BaseDirectory + @"\Settings.xml";
+        public static XmlDocument settingsFile = new XmlDocument();
+        public static string pathToSettingsFile = AppDomain.CurrentDomain.BaseDirectory + @"\Settings.xml";
 
         public static Equalizer equalizer;
         public static EqualizerBand[] bands;
@@ -78,14 +78,14 @@ namespace AudioPlayer
 
                 bands = new EqualizerBand[]
                 {
-                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 100, Gain = 0},
-                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 200, Gain = 0},
-                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 400, Gain = 0},
-                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 800, Gain = 0},
-                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 1200, Gain = 0},
-                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 2400, Gain = 0},
-                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 4800, Gain = 0},
-                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 9600, Gain = 0},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 100, Gain = float.Parse(settingsFile.DocumentElement["Band1"].InnerText)},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 200, Gain = float.Parse(settingsFile.DocumentElement["Band2"].InnerText)},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 400, Gain = float.Parse(settingsFile.DocumentElement["Band3"].InnerText)},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 800, Gain = float.Parse(settingsFile.DocumentElement["Band4"].InnerText)},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 1200, Gain = float.Parse(settingsFile.DocumentElement["Band5"].InnerText)},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 2400, Gain = float.Parse(settingsFile.DocumentElement["Band6"].InnerText)},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 4800, Gain = float.Parse(settingsFile.DocumentElement["Band7"].InnerText)},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 9600, Gain = float.Parse(settingsFile.DocumentElement["Band8"].InnerText)},
                 };
                 Debug.WriteLine("\nКол-во полос = " + (bands.Length) + "\n");
             }
@@ -429,7 +429,8 @@ namespace AudioPlayer
 
                 outputDevice = new WaveOutEvent();
                 mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath);
-                outputDevice.Init(mainReader);
+                equalizer = new Equalizer(mainReader, bands);
+                outputDevice.Init(equalizer);
                 outputDevice.Play();
                 Timer();
             }
@@ -665,7 +666,6 @@ namespace AudioPlayer
             }
             ((Image)sender).Source = (ImageSource)new ImageSourceConverter().ConvertFrom(new Uri(@"pack://application:,,,/AudioPlayerFrame;component/Icons/" + playbackOptionsArray[selectedPlaybackOptionIndex]));
         }
-
 
         #endregion
 

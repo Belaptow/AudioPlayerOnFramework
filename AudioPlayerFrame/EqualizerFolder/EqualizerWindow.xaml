@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Title="Equalizer" Height="160" Width="240"
         ResizeMode="NoResize"
-        WindowStyle="None">
+        WindowStyle="None"
+        Background="DarkGray">
     <Window.Resources>
         <ControlTemplate x:Key="EqualizerSliderControlTemplate" TargetType="{x:Type Slider}">
             <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
@@ -229,5 +230,24 @@
                     Minimum="-30"
                     ValueChanged="BandValueChanged"/>
         </StackPanel>
+        <Image Name="resetEqualizer"
+               Source="reset.png" 
+               Width="15"
+               Height="15"
+               Margin="0, 0, 20, 2"
+               VerticalAlignment="Bottom"
+               MouseEnter="ImageButton_MouseEnter" 
+               MouseLeave="ImageButton_MouseLeave"
+               MouseUp="resetEqualizer_MouseUp"/>
+        
+        <Image Name="saveEqualizer"
+               Source="save.png" 
+               Width="15"
+               Height="15"
+               Margin="20, 0, 0, 2"
+               VerticalAlignment="Bottom"
+               MouseEnter="ImageButton_MouseEnter" 
+               MouseLeave="ImageButton_MouseLeave"
+               MouseUp="saveEqualizer_MouseUp"/>
     </Grid>
 </Window>

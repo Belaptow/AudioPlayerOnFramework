@@ -144,5 +144,15 @@
     <Resource Include="Icons\loop.png" />
     <Resource Include="Icons\random.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\reset.png" />
+    <Resource Include="Icons\save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="EqualizerFolder\reset.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="EqualizerFolder\save.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
