@@ -33,18 +33,26 @@ namespace AudioPlayer
     {
         #region Переменные
         public List<Track> tracksList = new List<Track>();
+
         public List<Window> childWindows = new List<Window>();
         public List<Window> childWindowsLeft = new List<Window>();
         public List<Window> childWindowsRight = new List<Window>();
+
         public string[] playbackOptionsArray = new string[] { "loop.png", "repeat.png", "one.png", "random.png" };
         public int selectedPlaybackOptionIndex = 0;
+
         public string workingFolderPath = @"defaultWorkingFolder";
         public string exePath = AppDomain.CurrentDomain.BaseDirectory;
         public string[] allowedExtensions = new string[] { ".wav", ".mp3" };
+
         public AudioFileReader mainReader;
         public WaveOutEvent outputDevice;
+
         public XmlDocument settingsFile = new XmlDocument();
         public string pathToSettingsFile = AppDomain.CurrentDomain.BaseDirectory + @"\Settings.xml";
+
+        public static Equalizer equalizer;
+        public static EqualizerBand[] bands;
         #endregion
 
         public MainWindow()
@@ -64,11 +72,22 @@ namespace AudioPlayer
                     settingsFile.DocumentElement["workingFolder"].InnerText = exePath + workingFolderPath;
                     System.IO.Directory.CreateDirectory(settingsFile.DocumentElement["workingFolder"].InnerText);
                 }
-                //workingFolderPath = exePath + workingFolderPath;
-                //System.IO.Directory.CreateDirectory(workingFolderPath);
                 workingFolderPath = settingsFile.DocumentElement["workingFolder"].InnerText;
                 RefreshDataGrid();
                 settingsFile.Save(pathToSettingsFile);
+
+                bands = new EqualizerBand[]
+                {
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 100, Gain = 0},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 200, Gain = 0},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 400, Gain = 0},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 800, Gain = 0},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 1200, Gain = 0},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 2400, Gain = 0},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 4800, Gain = 0},
+                    new EqualizerBand {Bandwidth = 0.8f, Frequency = 9600, Gain = 0},
+                };
+                Debug.WriteLine("\nКол-во полос = " + (bands.Length) + "\n");
             }
             catch (Exception ex)
             {
@@ -647,9 +666,24 @@ namespace AudioPlayer
             ((Image)sender).Source = (ImageSource)new ImageSourceConverter().ConvertFrom(new Uri(@"pack://application:,,,/AudioPlayerFrame;component/Icons/" + playbackOptionsArray[selectedPlaybackOptionIndex]));
         }
 
+
         #endregion
 
-
+        private void testButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath);
+                equalizer = new Equalizer(mainReader, bands);
+                outputDevice = new WaveOutEvent();
+                outputDevice.Init(equalizer);
+                outputDevice.Play();
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
     }
 
     public class Track

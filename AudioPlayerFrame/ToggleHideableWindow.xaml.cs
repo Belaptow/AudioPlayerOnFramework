@@ -42,7 +42,7 @@ namespace AudioPlayer
             {
                 case "Equalizer":
                     //MessageBox.Show("Открытие эквалайзера");
-                    windowToOpen = new Equalizer();
+                    windowToOpen = new EqualizerWindow();
                     windowToOpen.Owner = Application.Current.MainWindow;
                     break;
                 case "Visualizer":
