@@ -36,7 +36,6 @@ namespace AudioPlayer
         public List<Window> childWindows = new List<Window>();
         public List<Window> childWindowsLeft = new List<Window>();
         public List<Window> childWindowsRight = new List<Window>();
-        public MediaPlayer player = new MediaPlayer();
         public string workingFolderPath = @"defaultWorkingFolder";
         public string exePath = AppDomain.CurrentDomain.BaseDirectory;
         public string[] allowedExtensions = new string[] { ".wav", ".mp3" };
@@ -358,7 +357,7 @@ namespace AudioPlayer
                 Thread.CurrentThread.IsBackground = true;
                 try
                 {
-                    while(outputDevice.PlaybackState == PlaybackState.Playing)
+                    while(outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing)
                     {
                         Dispatcher.Invoke((Action)delegate()
                         {
@@ -366,6 +365,24 @@ namespace AudioPlayer
                         });
                         Thread.Sleep(100);
                     }
+                    //if (mainReader != null && outputDevice != null)
+                    //{
+                    //    Dispatcher.Invoke((Action)delegate ()
+                    //    {
+                    //        Debug.WriteLine("\nСтатус трека: " + outputDevice.PlaybackState +
+                    //                "\nВремя: " + mainReader.CurrentTime.TotalSeconds +
+                    //                "\nЗначение слайдера: " + playerControlSlider.Value +
+                    //                "\nМаксимальное значение слайдера: " + playerControlSlider.Maximum);
+                    //    });
+                        
+                    //}
+                    Dispatcher.Invoke((Action)delegate ()
+                    {
+                        if (playerControlSlider.Value == playerControlSlider.Maximum)
+                        {
+                            playerControlNext_MouseUp(null, null);
+                        }
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -417,7 +434,100 @@ namespace AudioPlayer
             }
         }
 
+        //Предыдущий трек
+        private void playerControlPrev_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (tracksDataGrid.SelectedIndex - 1 < 0)
+                {
+                    tracksDataGrid.SelectedIndex = tracksDataGrid.Items.Count - 1;
+                }
+                else
+                {
+                    tracksDataGrid.SelectedIndex -= 1;
+                }
+                if (outputDevice != null) outputDevice.Stop();
+                outputDevice = null;
+                mainReader = null;
+                playerControlPlay_MouseUp(null, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        //Следующий трек
+        private void playerControlNext_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (tracksDataGrid.SelectedIndex + 1 >= tracksDataGrid.Items.Count)
+                {
+                    tracksDataGrid.SelectedIndex = 0;
+                }
+                else
+                {
+                    tracksDataGrid.SelectedIndex += 1;
+                }
+                if (outputDevice != null) outputDevice.Stop();
+                outputDevice = null;
+                mainReader = null;
+                playerControlPlay_MouseUp(null, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        //Изменение значения слайдера
+        private void playerControlSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            try
+            {
+                if (mainReader != null)
+                {
+                    mainReader.CurrentTime = TimeSpan.FromSeconds(((Slider)sender).Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        //Изменение выбранного трека
+        private void tracksDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                playerControlSlider.Value = playerControlSlider.Minimum;
+                if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing)
+                {
+                    outputDevice.Stop();
+                    outputDevice = null;
+                    mainReader = null;
+                    playerControlPlay_MouseUp(null, null);
+                }
+                else if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Paused)
+                {
+                    outputDevice = null;
+                    mainReader = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+
+
         #endregion
+
+        
     }
 
     public class Track

@@ -84,7 +84,7 @@
                   CanUserReorderColumns="False"
                   AutoGenerateColumns="False"
                   HorizontalAlignment="Stretch"
-                  RowHeaderWidth="0">
+                  RowHeaderWidth="0" SelectionChanged="tracksDataGrid_SelectionChanged">
 
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
@@ -141,7 +141,8 @@
                     Maximum="{Binding ElementName=tracksDataGrid, 
                                       Path=SelectedItem.audioTimeSpanLength,
                                       Converter={StaticResource ttdc}}"
-                    VerticalAlignment="Top">
+                    VerticalAlignment="Top" 
+                    ValueChanged="playerControlSlider_ValueChanged">
                 <Slider.Resources>
                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" 
                                      Color="Black" />
@@ -180,7 +181,8 @@
                        Height="20"
                        Margin="5, 0, 5, 0" 
                        MouseEnter="ImageButton_MouseEnter" 
-                       MouseLeave="ImageButton_MouseLeave"/>
+                       MouseLeave="ImageButton_MouseLeave"
+                       MouseUp="playerControlPrev_MouseUp"/>
                 <Image Name="playerControlPlay"
                        Source="/play.png" 
                        Width="20"
@@ -203,7 +205,8 @@
                        Height="20"
                        Margin="5, 0, 5, 0"
                        MouseEnter="ImageButton_MouseEnter" 
-                       MouseLeave="ImageButton_MouseLeave"/>
+                       MouseLeave="ImageButton_MouseLeave"
+                       MouseUp="playerControlNext_MouseUp"/>
             </StackPanel>
         </Grid>
     </Grid>
