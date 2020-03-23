@@ -441,18 +441,22 @@ namespace AudioPlayer
         {
             try
             {
-                if (tracksDataGrid.SelectedIndex - 1 < 0)
+                switch (playbackOptionsArray[selectedPlaybackOptionIndex])
                 {
-                    tracksDataGrid.SelectedIndex = tracksDataGrid.Items.Count - 1;
+                    case "loop.png":
+                        loopPrevTrack();
+                        break;
+                    case "repeat.png":
+                        repeatOneTrack();
+                        break;
+                    case "one.png":
+                        repeatOneTrackOnce();
+                        break;
+                    case "random.png":
+                        randomTrack();
+                        break;
                 }
-                else
-                {
-                    tracksDataGrid.SelectedIndex -= 1;
-                }
-                if (outputDevice != null) outputDevice.Stop();
-                outputDevice = null;
-                mainReader = null;
-                playerControlPlay_MouseUp(null, null);
+                
             }
             catch (Exception ex)
             {
@@ -465,6 +469,84 @@ namespace AudioPlayer
         {
             try
             {
+                switch(playbackOptionsArray[selectedPlaybackOptionIndex])
+                {
+                    case "loop.png":
+                        loopNextTrack();
+                        break;
+                    case "repeat.png":
+                        repeatOneTrack();
+                        break;
+                    case "one.png":
+                        repeatOneTrackOnce();
+                        break;
+                    case "random.png":
+                        randomTrack();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        //Случайный трек
+        public void randomTrack()
+        {
+            try
+            {
+                Random rnd = new Random();
+                tracksDataGrid.SelectedIndex = rnd.Next(0, tracksDataGrid.Items.Count);
+                if (outputDevice != null) outputDevice.Stop();
+                outputDevice = null;
+                mainReader = null;
+                playerControlPlay_MouseUp(null, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        //Повторение одного трека один раз
+        public void repeatOneTrackOnce()
+        {
+            try
+            {
+                playerControlSlider.Value = playerControlSlider.Minimum;
+                if (outputDevice != null) outputDevice.Stop();
+                outputDevice = null;
+                mainReader = null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        //Повторение одного трека
+        private void repeatOneTrack()
+        {
+            try
+            {
+                playerControlSlider.Value = playerControlSlider.Minimum;
+                if (outputDevice != null) outputDevice.Stop();
+                outputDevice = null;
+                mainReader = null;
+                playerControlPlay_MouseUp(null, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        //Следующий трек в режиме цикла
+        private void loopNextTrack()
+        {
+            try
+            {
                 if (tracksDataGrid.SelectedIndex + 1 >= tracksDataGrid.Items.Count)
                 {
                     tracksDataGrid.SelectedIndex = 0;
@@ -472,6 +554,30 @@ namespace AudioPlayer
                 else
                 {
                     tracksDataGrid.SelectedIndex += 1;
+                }
+                if (outputDevice != null) outputDevice.Stop();
+                outputDevice = null;
+                mainReader = null;
+                playerControlPlay_MouseUp(null, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        //Предыдущий трек в режиме цикла
+        private void loopPrevTrack()
+        {
+            try
+            {
+                if (tracksDataGrid.SelectedIndex - 1 < 0)
+                {
+                    tracksDataGrid.SelectedIndex = tracksDataGrid.Items.Count - 1;
+                }
+                else
+                {
+                    tracksDataGrid.SelectedIndex -= 1;
                 }
                 if (outputDevice != null) outputDevice.Stop();
                 outputDevice = null;
@@ -528,7 +634,7 @@ namespace AudioPlayer
         //Изменение выбранного режима воспроизведения
         private void playerControlPlaybackMode_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            Debug.WriteLine(((Image)sender).Source.ToString());
+            //Debug.WriteLine(((Image)sender).Source.ToString());
             //testButton.Content = ((Image)sender).Source.ToString();
             if (selectedPlaybackOptionIndex + 1 >= playbackOptionsArray.Length)
             {
