@@ -19,7 +19,7 @@
         <Button Name="testButton"
                 VerticalAlignment="Top"
                 HorizontalAlignment="Right"
-                Width="100"
+                Width="250"
                 Height="25"
                 Margin="0, 0, 0, 0"
                 Content="TestButton"/>
@@ -207,13 +207,13 @@
                        MouseLeave="ImageButton_MouseLeave"
                        MouseUp="playerControlNext_MouseUp"/>
                 <Image Name="playerControlPlaybackMode"
-                       Source="Icons/repeat.png" 
+                       Source="Icons/loop.png" 
                        Width="20"
                        Height="20"
                        Margin="5, 0, 5, 0"
                        MouseEnter="ImageButton_MouseEnter" 
                        MouseLeave="ImageButton_MouseLeave"
-                       MouseUp="playerControlNext_MouseUp"/>
+                       MouseUp="playerControlPlaybackMode_MouseUp"/>
             </StackPanel>
         </Grid>
     </Grid>

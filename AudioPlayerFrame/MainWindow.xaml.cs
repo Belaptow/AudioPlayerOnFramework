@@ -36,6 +36,8 @@ namespace AudioPlayer
         public List<Window> childWindows = new List<Window>();
         public List<Window> childWindowsLeft = new List<Window>();
         public List<Window> childWindowsRight = new List<Window>();
+        public string[] playbackOptionsArray = new string[] { "loop.png", "repeat.png", "one.png", "random.png" };
+        public int selectedPlaybackOptionIndex = 0;
         public string workingFolderPath = @"defaultWorkingFolder";
         public string exePath = AppDomain.CurrentDomain.BaseDirectory;
         public string[] allowedExtensions = new string[] { ".wav", ".mp3" };
@@ -498,7 +500,7 @@ namespace AudioPlayer
             }
         }
 
-        //Изменение выбранного трека
+        //Выбор трека на датагриде
         private void tracksDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
@@ -523,11 +525,25 @@ namespace AudioPlayer
             }
         }
 
-
+        //Изменение выбранного режима воспроизведения
+        private void playerControlPlaybackMode_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Debug.WriteLine(((Image)sender).Source.ToString());
+            //testButton.Content = ((Image)sender).Source.ToString();
+            if (selectedPlaybackOptionIndex + 1 >= playbackOptionsArray.Length)
+            {
+                selectedPlaybackOptionIndex = 0;
+            }
+            else
+            {
+                selectedPlaybackOptionIndex += 1;
+            }
+            ((Image)sender).Source = (ImageSource)new ImageSourceConverter().ConvertFrom(new Uri(@"pack://application:,,,/AudioPlayerFrame;component/Icons/" + playbackOptionsArray[selectedPlaybackOptionIndex]));
+        }
 
         #endregion
 
-        
+
     }
 
     public class Track
