@@ -116,18 +116,28 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="bin.png" />
-    <Resource Include="next.png" />
-    <Resource Include="open-folder.png" />
-    <Resource Include="pause.png" />
-    <Resource Include="play.png" />
-    <Resource Include="plus.png" />
-    <Resource Include="prev.png" />
-    <Resource Include="refresh.png" />
+    <Resource Include="Icons\bin.png" />
+    <Resource Include="Icons\next.png" />
+    <Resource Include="Icons\open-folder.png" />
+    <Resource Include="Icons\pause.png" />
+    <Resource Include="Icons\play.png" />
+    <Resource Include="Icons\plus.png" />
+    <Resource Include="Icons\prev.png" />
+    <Resource Include="Icons\refresh.png" />
     <None Include="Settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Resource Include="stop.png" />
+    <Resource Include="Icons\stop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\one.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\repeat.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\loop.png" />
+    <Resource Include="Icons\random.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

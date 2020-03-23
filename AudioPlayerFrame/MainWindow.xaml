@@ -32,7 +32,7 @@
                     Margin="5, 5, 0, 0">
             
             <Image Name="contentControlSelectWorkingFolder" 
-                   Source="/open-folder.png"
+                   Source="Icons/open-folder.png"
                    Height="20"
                    Width="20"
                    Margin="5, 0, 5, 0" 
@@ -42,7 +42,7 @@
                    ToolTip="Выбор папки аудиозаписей"/>
             
             <Image Name="contentControlDeleteTrack" 
-                   Source="/bin.png"
+                   Source="Icons/bin.png"
                    Height="20"
                    Width="20"
                    Margin="5, 0, 5, 0" 
@@ -52,7 +52,7 @@
                    MouseUp="contentControlDeleteTrack_MouseUp"/>
             
             <Image Name="contentControlAddTrack" 
-                   Source="/plus.png"
+                   Source="Icons/plus.png"
                    Height="20"
                    Width="20"
                    Margin="5, 0, 5, 0" 
@@ -62,7 +62,7 @@
                    MouseUp="contentControlAddTrack_MouseUp"/>
             
             <Image Name="contentControlRefreshGrid" 
-                   Source="/refresh.png"
+                   Source="Icons/refresh.png"
                    Height="20"
                    Width="20"
                    Margin="5, 0, 5, 0" 
@@ -173,10 +173,9 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Bottom"
                         Margin="0, 0, 0, 5"
-                        Height="22"
-                        Width="120">
+                        Height="22">
                 <Image Name="playerControlPrev"
-                       Source="/prev.png" 
+                       Source="Icons/prev.png" 
                        Width="20"
                        Height="20"
                        Margin="5, 0, 5, 0" 
@@ -184,7 +183,7 @@
                        MouseLeave="ImageButton_MouseLeave"
                        MouseUp="playerControlPrev_MouseUp"/>
                 <Image Name="playerControlPlay"
-                       Source="/play.png" 
+                       Source="Icons/play.png" 
                        Width="20"
                        Height="20"
                        Margin="5, 0, 5, 0"
@@ -192,7 +191,7 @@
                        MouseLeave="ImageButton_MouseLeave"
                        MouseUp="playerControlPlay_MouseUp"/>
                 <Image Name="playerControlPause"
-                       Source="/pause.png" 
+                       Source="Icons/pause.png" 
                        Width="20"
                        Height="20"
                        Margin="5, 0, 5, 0"
@@ -200,7 +199,15 @@
                        MouseLeave="ImageButton_MouseLeave"
                        MouseUp="playerControlPause_MouseUp"/>
                 <Image Name="playerControlNext"
-                       Source="/next.png" 
+                       Source="Icons/next.png" 
+                       Width="20"
+                       Height="20"
+                       Margin="5, 0, 5, 0"
+                       MouseEnter="ImageButton_MouseEnter" 
+                       MouseLeave="ImageButton_MouseLeave"
+                       MouseUp="playerControlNext_MouseUp"/>
+                <Image Name="playerControlPlaybackMode"
+                       Source="Icons/repeat.png" 
                        Width="20"
                        Height="20"
                        Margin="5, 0, 5, 0"
