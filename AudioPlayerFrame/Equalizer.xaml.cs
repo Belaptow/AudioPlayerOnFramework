@@ -21,6 +21,7 @@ namespace AudioPlayer
         public Equalizer()
         {
             InitializeComponent();
+
         }
     }
 }
