@@ -33,6 +33,8 @@ namespace AudioPlayer
 
             foreach(System.Windows.UIElement element in equalizerChartGrid.Children)
             {
+                
+
                 graphs.Add(((Plot)element).Name, new GraphBuilder(MainWindow.bands[int.Parse(((Plot)element).Name.Split('_')[1]) - 1].Gain,
                                                                   MainWindow.bands[int.Parse(((Plot)element).Name.Split('_')[2]) - 1].Gain));
                 ((Plot)element).Series[0].ItemsSource = graphs[((Plot)element).Name].Points;
@@ -50,6 +52,7 @@ namespace AudioPlayer
 
                 foreach (System.Windows.UIElement element in equalizerChartGrid.Children)
                 {
+                    
                     ((Plot)element).Series[0].ItemsSource = new GraphBuilder(MainWindow.bands[int.Parse(((Plot)element).Name.Split('_')[1]) - 1].Gain,
                                                                              MainWindow.bands[int.Parse(((Plot)element).Name.Split('_')[2]) - 1].Gain).Points;
                     plot_4_5.InvalidatePlot(true);
@@ -170,8 +173,8 @@ namespace AudioPlayer
             this.rightVal = rightVal;
             this.heightDifference = leftVal - rightVal;
             this.Points = new List<DataPoint>();
-            int count = (int)Math.Ceiling((50) / step);
-            Debug.WriteLine("\nКол-во точек: " + count + "\n");
+            int count = (int)Math.Ceiling((Math.PI) / step);
+            //Debug.WriteLine("\nКол-во точек: " + count + "\n");
             for (int i = 0; i <= count; i++)
             {
                 this.Points.Add(new DataPoint(i*step, Calculate(i*step)));
@@ -180,9 +183,15 @@ namespace AudioPlayer
 
         public double Calculate(double x)
         {
-            return ((-1) * ((this.leftVal * x) / 50)) +
-                   this.leftVal +
-                   ((this.rightVal * x) / 50);
+            //return ((-1) * ((this.leftVal * x) / 50)) +
+            //       this.leftVal +
+            //       ((this.rightVal * x) / 50);
+
+            //y = a + b * cos(c * x + d) - формула синусоиды
+
+            //y = heightDifference * cos(x + (PI / 2) - тест формула
+
+            return (heightDifference / 2) + ((heightDifference / 2) * Math.Cos(x)) + this.rightVal;
         }
 
         public IList<DataPoint> Points { get; set; }
