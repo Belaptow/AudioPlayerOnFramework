@@ -22,6 +22,9 @@ namespace AudioPlayer
     public partial class EqualizerWindow : Window
     {
         public Dictionary<string, GraphBuilder> graphs = new Dictionary<string, GraphBuilder>();
+        public double scaleY = 1.5;
+        public double scaleX = 1.2;
+
 
         public EqualizerWindow()
         {
@@ -29,17 +32,11 @@ namespace AudioPlayer
             foreach(System.Windows.UIElement element in equalizerStackPanel.Children)
             {
                 ((Slider)element).Value = double.Parse(MainWindow.settingsFile.DocumentElement["Band" + ((Slider)element).Name.Split('_')[1]].InnerText);
+                ((Slider)element).AutoToolTipPlacement = System.Windows.Controls.Primitives.AutoToolTipPlacement.TopLeft;
+                ((Slider)element).AutoToolTipPrecision = 1;
             }
 
-            foreach(System.Windows.UIElement element in equalizerChartGrid.Children)
-            {
-                
-
-                graphs.Add(((Plot)element).Name, new GraphBuilder(MainWindow.bands[int.Parse(((Plot)element).Name.Split('_')[1]) - 1].Gain,
-                                                                  MainWindow.bands[int.Parse(((Plot)element).Name.Split('_')[2]) - 1].Gain));
-                ((Plot)element).Series[0].ItemsSource = graphs[((Plot)element).Name].Points;
-                plot_4_5.InvalidatePlot(true);
-            }
+            BandValueChanged(Band_1, null);
 
         }
 
@@ -52,11 +49,16 @@ namespace AudioPlayer
 
                 foreach (System.Windows.UIElement element in equalizerChartGrid.Children)
                 {
-                    
+                    if (curveChoiceCombo.SelectedIndex == 1)
+                    {
+                        ((Plot)element).Series[0].ItemsSource = null;
+                        continue;
+                    }
+
                     ((Plot)element).Series[0].ItemsSource = new GraphBuilder(MainWindow.bands[int.Parse(((Plot)element).Name.Split('_')[1]) - 1].Gain,
                                                                              MainWindow.bands[int.Parse(((Plot)element).Name.Split('_')[2]) - 1].Gain).Points;
-                    plot_4_5.InvalidatePlot(true);
                 }
+                if (curveChoiceCombo.SelectedIndex == 1) drawBezie(); else canvas.Children.Clear();
             }
             catch (Exception ex)
             {
@@ -115,42 +117,78 @@ namespace AudioPlayer
             try
             {
                 Debug.WriteLine("Начало добавления хлама в график");
+                List<DataPoint> pointsListTest = new List<DataPoint>();
 
-                GraphBuilder testBuilder = new GraphBuilder(0, 0);
-                //LineSeries testSeries = new LineSeries();
+                int multipllier = 0;
+                
+                foreach (EqualizerBand band in MainWindow.bands)
+                {
+                    pointsListTest.Add(new DataPoint(50 * multipllier, band.Gain));
+                    multipllier++;
+                }
 
-                //plot_1_2.Axes.Add(new OxyPlot.Wpf.LinearAxis()
-                //{
-                //    Position = AxisPosition.Bottom,
-                //    IsAxisVisible = false
-                //});
-
-                //plot_1_2.Axes.Add(new OxyPlot.Wpf.LinearAxis()
-                //{
-                //    Position = AxisPosition.Left,
-                //    IsAxisVisible = false
-                //});
-
-                //testSeries.ItemsSource = testBuilder.Points;
-                //plot_1_2.Series.Add(testSeries);
-
-                //foreach(DataPoint point in testBuilder.Points)
-                //{
-                //    Debug.WriteLine(point.X + "  :  " + point.Y);
-                //}
-
-                plot_4_5.Series[0].ItemsSource = testBuilder.Points;
+                plotTest.Series[0].ItemsSource = pointsListTest;
 
                 Debug.WriteLine("Добавление серии в график");
 
-                plot_4_5.InvalidatePlot(true);
+                plotTest.InvalidatePlot(true);
                 Debug.WriteLine("Инвалидация");
-                
+
+                multipllier = 0;
+                double canvasStep = 50;
+                Debug.WriteLine("Шаг канваса: " + canvasStep);
+
+                Point[] pointsArrayTest = new Point[MainWindow.bands.Length];
+
+                foreach (EqualizerBand band in MainWindow.bands)
+                {
+                    pointsArrayTest[multipllier] = new Point(canvasStep * multipllier * scaleX, yConvert(band.Gain));
+                    multipllier++;
+                }
+
+                CustomBezierBuilder testBezierBuilder = new CustomBezierBuilder(pointsArrayTest, canvas);
+                testBezierBuilder.Draw();
+
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("\n" + ex + "\n");
             }
+        }
+
+        private void drawBezie()
+        {
+            try
+            {
+                int multipllier = 0;
+                double canvasStep = 50;
+                //Debug.WriteLine("Шаг канваса: " + canvasStep);
+
+                Point[] pointsArrayTest = new Point[MainWindow.bands.Length];
+
+                foreach (EqualizerBand band in MainWindow.bands)
+                {
+                    pointsArrayTest[multipllier] = new Point(canvasStep * multipllier * scaleX, yConvert(band.Gain));
+                    multipllier++;
+                }
+
+                CustomBezierBuilder testBezierBuilder = new CustomBezierBuilder(pointsArrayTest, canvas);
+                testBezierBuilder.Draw();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        double yConvert(double y)
+        {
+            return ((y * (-1)) + 30) * scaleY;
+        }
+
+        private void curveChoiceCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BandValueChanged(Band_1, null);
         }
     }
 

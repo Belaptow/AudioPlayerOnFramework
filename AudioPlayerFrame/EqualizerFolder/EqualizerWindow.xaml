@@ -38,10 +38,12 @@
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Setter Property="Focusable" Value="False"/>
                                         <Setter Property="IsTabStop" Value="False"/>
+                                        <Setter Property="Width" Value="0" />
+                                        <Setter Property="Height" Value="0" />
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="{x:Type RepeatButton}">
-                                                    <Rectangle Fill="{TemplateBinding Background}" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}"/>
+                                                    <Rectangle Fill="{TemplateBinding Background}" Height="0" Width="0"/>
                                                 </ControlTemplate>
                                             </Setter.Value>
                                         </Setter>
@@ -57,10 +59,12 @@
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Setter Property="Focusable" Value="False"/>
                                         <Setter Property="IsTabStop" Value="False"/>
+                                        <Setter Property="Width" Value="0" />
+                                        <Setter Property="Height" Value="0" />
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="{x:Type RepeatButton}">
-                                                    <Rectangle Fill="{TemplateBinding Background}" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}"/>
+                                                    <Rectangle Fill="{TemplateBinding Background}" Height="0" Width="0"/>
                                                 </ControlTemplate>
                                             </Setter.Value>
                                         </Setter>
@@ -171,7 +175,9 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
-
+        <Style TargetType="oxy:LineSeries">
+            <Setter Property="StrokeThickness" Value="1"/>
+        </Style>
     </Window.Resources>
     <Grid>
         <StackPanel Name="equalizerStackPanel"
@@ -413,6 +419,7 @@
                       IsEnabled="False" Margin="360, 0, 2, 0">
 
                 <oxy:Plot.Series>
+
                     <oxy:LineSeries Color="Black" BorderThickness="0">
                         <oxy:LineSeries.BorderBrush>
                             <SolidColorBrush Color="Black" Opacity="0"/>
@@ -432,8 +439,38 @@
                     <SolidColorBrush Color="White" Opacity="0"/>
                 </oxy:Plot.BorderBrush>
             </oxy:Plot>
-
+            
         </Grid>
+
+        <oxy:Plot Name="plotTest"  Width="430" PlotAreaBorderThickness="0" 
+                      BorderThickness="0" HorizontalAlignment="Center" Panel.ZIndex="-3" 
+                      IsEnabled="False" Margin="5, 0, 5, 20">
+
+            <oxy:Plot.Series>
+                <oxy:LineSeries Color="Red" BorderThickness="0" LineJoin="Bevel">
+                    <oxy:LineSeries.BorderBrush>
+                        <SolidColorBrush Color="Black" Opacity="0"/>
+                    </oxy:LineSeries.BorderBrush>
+                </oxy:LineSeries>
+            </oxy:Plot.Series>
+
+            <oxy:Plot.Axes>
+                <oxy:LinearAxis Position="Left" IsAxisVisible="False"  Maximum="31" Minimum="-31"/>
+                <oxy:LinearAxis Position="Bottom" IsAxisVisible="False" Maximum="350" Minimum="0"/>
+            </oxy:Plot.Axes>
+
+            <oxy:Plot.Background>
+                <SolidColorBrush Color="White" Opacity="0"/>
+            </oxy:Plot.Background>
+            <oxy:Plot.BorderBrush>
+                <SolidColorBrush Color="White" Opacity="0"/>
+            </oxy:Plot.BorderBrush>
+        </oxy:Plot>
+
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Panel.ZIndex="-2" 
+                      Margin="29, 5, 5, 25" Width="{Binding ElementName=equalizerStackPanel, Path=Width}">
+            <Canvas x:Name="canvas" Background="Transparent"/>
+        </ScrollViewer>
 
         <Image Name="resetEqualizer"
                Source="reset.png" 
@@ -454,11 +491,22 @@
                MouseEnter="ImageButton_MouseEnter" 
                MouseLeave="ImageButton_MouseLeave"
                MouseUp="saveEqualizer_MouseUp"/>
+        
         <Button Name="testButtonChart" 
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Width="20"
                 Height="20"
                 Click="testButtonChart_Click"/>
+
+        <ComboBox Name="curveChoiceCombo" 
+                  VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                  Margin="130, 0, 0, 2" Background="Black" BorderBrush="Black"
+                  SelectionChanged="curveChoiceCombo_SelectionChanged"
+                  Width="60"
+                  Height="20">
+            <ComboBoxItem Name="sinusCurve" Content="sinus"/>
+            <ComboBoxItem Name="bezieCurve" Content="bezie" IsSelected="True"/>
+        </ComboBox>
     </Grid>
 </Window>
