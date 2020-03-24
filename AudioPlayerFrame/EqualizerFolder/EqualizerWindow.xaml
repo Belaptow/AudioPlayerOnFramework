@@ -183,7 +183,7 @@
         <StackPanel Name="equalizerStackPanel"
                     Orientation="Horizontal"
                     Margin="5, 5, 5, 25"
-                    HorizontalAlignment="Center">
+                    HorizontalAlignment="Left">
             <Slider Name="Band_1"
                     Orientation="Vertical" 
                     Width="20"
@@ -259,7 +259,7 @@
         </StackPanel>
 
         <Grid Name="equalizerChartGrid"
-                    Margin="5, 0, 5, 20"
+                    Margin="-5, 0, 15, 20"
                     HorizontalAlignment="Stretch"
                     Panel.ZIndex="-1">
 
@@ -468,9 +468,21 @@
         </oxy:Plot>
 
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Panel.ZIndex="-2" 
-                      Margin="29, 5, 5, 25" Width="{Binding ElementName=equalizerStackPanel, Path=Width}">
+                      Margin="18, 5, 5, 25" Width="{Binding ElementName=equalizerStackPanel, Path=Width}">
             <Canvas x:Name="canvas" Background="Transparent"/>
         </ScrollViewer>
+
+        <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top"
+                   Margin="0,0,2,0" Text="+30"/>
+        <Border Background="LightGray" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="1" Margin="15, 10, 30, 0" Panel.ZIndex="-6"/>
+        
+        <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top"
+                   Margin="0,41,6,0" Text="0"/>
+        <Border Background="LightGray" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="1" Margin="15, 50, 30, 0" Panel.ZIndex="-6"/>
+        
+        <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top"
+                   Margin="0,82,2,0" Text="-30"/>
+        <Border Background="LightGray" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="1" Margin="15,90,30,0" Panel.ZIndex="-6"/>
 
         <Image Name="resetEqualizer"
                Source="reset.png" 
@@ -493,7 +505,7 @@
                MouseUp="saveEqualizer_MouseUp"/>
         
         <Button Name="testButtonChart" 
-                HorizontalAlignment="Right"
+                HorizontalAlignment="Left"
                 VerticalAlignment="Bottom"
                 Width="20"
                 Height="20"
