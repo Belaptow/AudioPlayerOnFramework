@@ -4,11 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AudioPlayer"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"
-        Title="Equalizer" Height="160" Width="240"
+        Title="Equalizer" Height="120" Width="480"
         ResizeMode="NoResize"
         WindowStyle="None"
-        Background="DarkGray">
+        Background="DarkGray"
+        ShowInTaskbar="False">
     <Window.Resources>
         <ControlTemplate x:Key="EqualizerSliderControlTemplate" TargetType="{x:Type Slider}">
             <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
@@ -69,11 +72,11 @@
                             <Thumb x:Name="Thumb" Focusable="False" Height="11" OverridesDefaultStyle="True" VerticalAlignment="Top" Width="18">
                                 <Thumb.Template>
                                     <ControlTemplate TargetType="{x:Type Thumb}">
-
+                                        <!--Граница внизу - стиль хваталки-->
                                         <Border CornerRadius="25" 
-                                                BorderBrush="#FFACACAC" 
+                                                BorderBrush="Black" 
                                                 BorderThickness="2" 
-                                                Background="#FFF0F0F0" 
+                                                Background="Black" 
                                                 Height="11" Width="11" 
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
@@ -81,12 +84,12 @@
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" TargetName="grip" Value="#FFDCECFC"/>
-                                                <Setter Property="BorderBrush" TargetName="grip" Value="#FF7EB4EA"/>
+                                                <Setter Property="Background" TargetName="grip" Value="#333333"/>
+                                                <Setter Property="BorderBrush" TargetName="grip" Value="#333333"/>
                                             </Trigger>
                                             <Trigger Property="IsDragging" Value="True">
-                                                <Setter Property="Background" TargetName="grip" Value="#FFDAECFC"/>
-                                                <Setter Property="BorderBrush" TargetName="grip" Value="#FF569DE5"/>
+                                                <Setter Property="Background" TargetName="grip" Value="#404040"/>
+                                                <Setter Property="BorderBrush" TargetName="grip" Value="#404040"/>
                                             </Trigger>
                                             <Trigger Property="IsEnabled" Value="False">
                                                 <Setter Property="Background" TargetName="grip" Value="#FFF0F0F0"/>
@@ -166,88 +169,296 @@
                     <Setter Property="Foreground" TargetName="Thumb" Value="Blue"/>
                 </Trigger>
             </ControlTemplate.Triggers>
-        </ControlTemplate>        
+        </ControlTemplate>
+
+
     </Window.Resources>
     <Grid>
         <StackPanel Name="equalizerStackPanel"
                     Orientation="Horizontal"
-                    Margin="5, 5, 5, 15"
+                    Margin="5, 5, 5, 25"
                     HorizontalAlignment="Center">
             <Slider Name="Band_1"
                     Orientation="Vertical" 
                     Width="20"
-                    Margin="5, 0, 5, 0"
+                    Margin="5, 0, 20, 0"
                     Maximum="30"
                     Minimum="-30"
-                    ValueChanged="BandValueChanged"/>
+                    ValueChanged="BandValueChanged"
+                    Template="{StaticResource EqualizerSliderControlTemplate}"
+                    Panel.ZIndex="10"/>
             <Slider Name="Band_2"
                     Orientation="Vertical" 
                     Width="20"
-                    Margin="5, 0, 5, 0"
+                    Margin="20,0"
                     Maximum="30"
                     Minimum="-30"
-                    ValueChanged="BandValueChanged"/>
+                    ValueChanged="BandValueChanged"
+                    Template="{StaticResource EqualizerSliderControlTemplate}"
+                    Panel.ZIndex="10"/>
             <Slider Name="Band_3"
                     Orientation="Vertical" 
                     Width="20"
-                    Margin="5, 0, 5, 0"
+                    Margin="20,0"
                     Maximum="30"
                     Minimum="-30"
-                    ValueChanged="BandValueChanged"/>
+                    ValueChanged="BandValueChanged"
+                    Template="{StaticResource EqualizerSliderControlTemplate}"
+                    Panel.ZIndex="10"/>
             <Slider Name="Band_4"
                     Orientation="Vertical" 
                     Width="20"
-                    Margin="5, 0, 5, 0"
+                    Margin="20,0"
                     Maximum="30"
                     Minimum="-30"
-                    ValueChanged="BandValueChanged"/>
+                    ValueChanged="BandValueChanged"
+                    Template="{StaticResource EqualizerSliderControlTemplate}"
+                    Panel.ZIndex="10"/>
             <Slider Name="Band_5"
                     Orientation="Vertical" 
                     Width="20"
-                    Margin="5, 0, 5, 0"
+                    Margin="20,0"
                     Maximum="30"
                     Minimum="-30"
-                    ValueChanged="BandValueChanged"/>
+                    ValueChanged="BandValueChanged"
+                    Template="{StaticResource EqualizerSliderControlTemplate}"
+                    Panel.ZIndex="10"/>
             <Slider Name="Band_6"
                     Orientation="Vertical" 
                     Width="20"
-                    Margin="5, 0, 5, 0"
+                    Margin="20,0"
                     Maximum="30"
                     Minimum="-30"
-                    ValueChanged="BandValueChanged"/>
+                    ValueChanged="BandValueChanged"
+                    Template="{StaticResource EqualizerSliderControlTemplate}"
+                    Panel.ZIndex="10"/>
             <Slider Name="Band_7"
                     Orientation="Vertical" 
                     Width="20"
-                    Margin="5, 0, 5, 0"
+                    Margin="20,0"
                     Maximum="30"
                     Minimum="-30"
-                    ValueChanged="BandValueChanged"/>
+                    ValueChanged="BandValueChanged"
+                    Template="{StaticResource EqualizerSliderControlTemplate}"
+                    Panel.ZIndex="10"/>
             <Slider Name="Band_8"
                     Orientation="Vertical" 
                     Width="20"
-                    Margin="5, 0, 5, 0"
+                    Margin="20, 0, 5, 0"
                     Maximum="30"
                     Minimum="-30"
-                    ValueChanged="BandValueChanged"/>
+                    ValueChanged="BandValueChanged"
+                    Template="{StaticResource EqualizerSliderControlTemplate}"
+                    Panel.ZIndex="10"/>
         </StackPanel>
+
+        <Grid Name="equalizerChartGrid"
+                    Margin="5, 5, 5, 25"
+                    HorizontalAlignment="Stretch"
+                    Panel.ZIndex="-1">
+            
+
+            <oxy:Plot Name="plot_1_2"  Width="72" PlotAreaBorderThickness="0" 
+                      BorderThickness="0" HorizontalAlignment="Center" Panel.ZIndex="-2" 
+                      IsEnabled="False" Margin="0, 0, 362, 0">
+
+                <oxy:Plot.Series>
+                    <oxy:LineSeries Color="Black" BorderThickness="0">
+                        <oxy:LineSeries.BorderBrush>
+                            <SolidColorBrush Color="Black" Opacity="0"/>
+                        </oxy:LineSeries.BorderBrush>
+                    </oxy:LineSeries>
+                </oxy:Plot.Series>
+
+                <oxy:Plot.Axes>
+                    <oxy:LinearAxis Position="Left" IsAxisVisible="False"  Maximum="30" Minimum="-30"/>
+                    <oxy:LinearAxis Position="Bottom" IsAxisVisible="False" Maximum="50" Minimum="0"/>
+                </oxy:Plot.Axes>
+
+                <oxy:Plot.Background>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.Background>
+                <oxy:Plot.BorderBrush>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.BorderBrush>
+            </oxy:Plot>
+
+            <oxy:Plot Name="plot_2_3"  Width="72" PlotAreaBorderThickness="0" 
+                      BorderThickness="0" HorizontalAlignment="Center" Panel.ZIndex="-2" 
+                      IsEnabled="False" Margin="0, 0, 242, 0">
+
+                <oxy:Plot.Series>
+                    <oxy:LineSeries Color="Black" BorderThickness="0">
+                        <oxy:LineSeries.BorderBrush>
+                            <SolidColorBrush Color="Black" Opacity="0"/>
+                        </oxy:LineSeries.BorderBrush>
+                    </oxy:LineSeries>
+                </oxy:Plot.Series>
+
+                <oxy:Plot.Axes>
+                    <oxy:LinearAxis Position="Left" IsAxisVisible="False"  Maximum="30" Minimum="-30"/>
+                    <oxy:LinearAxis Position="Bottom" IsAxisVisible="False" Maximum="50" Minimum="0"/>
+                </oxy:Plot.Axes>
+
+                <oxy:Plot.Background>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.Background>
+                <oxy:Plot.BorderBrush>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.BorderBrush>
+            </oxy:Plot>
+
+            <oxy:Plot Name="plot_3_4"  Width="72" PlotAreaBorderThickness="0" 
+                      BorderThickness="0" HorizontalAlignment="Center" Panel.ZIndex="-2" 
+                      IsEnabled="False" Margin="0, 0, 122, 0">
+
+                <oxy:Plot.Series>
+                    <oxy:LineSeries Color="Black" BorderThickness="0">
+                        <oxy:LineSeries.BorderBrush>
+                            <SolidColorBrush Color="Black" Opacity="0"/>
+                        </oxy:LineSeries.BorderBrush>
+                    </oxy:LineSeries>
+                </oxy:Plot.Series>
+
+                <oxy:Plot.Axes>
+                    <oxy:LinearAxis Position="Left" IsAxisVisible="False"  Maximum="30" Minimum="-30"/>
+                    <oxy:LinearAxis Position="Bottom" IsAxisVisible="False" Maximum="50" Minimum="0"/>
+                </oxy:Plot.Axes>
+
+                <oxy:Plot.Background>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.Background>
+                <oxy:Plot.BorderBrush>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.BorderBrush>
+            </oxy:Plot>
+
+            <oxy:Plot Name="plot_4_5"  Width="72" PlotAreaBorderThickness="0" 
+                      BorderThickness="0" HorizontalAlignment="Center" Panel.ZIndex="-2" 
+                      IsEnabled="False" Margin="0, 0, 2, 0">
+
+                <oxy:Plot.Series>
+                    <oxy:LineSeries Color="Black" BorderThickness="0">
+                        <oxy:LineSeries.BorderBrush>
+                            <SolidColorBrush Color="Black" Opacity="0"/>
+                        </oxy:LineSeries.BorderBrush>
+                    </oxy:LineSeries>
+                </oxy:Plot.Series>
+
+                <oxy:Plot.Axes>
+                    <oxy:LinearAxis Position="Left" IsAxisVisible="False"  Maximum="30" Minimum="-30"/>
+                    <oxy:LinearAxis Position="Bottom" IsAxisVisible="False" Maximum="50" Minimum="0"/>
+                </oxy:Plot.Axes>
+
+                <oxy:Plot.Background>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.Background>
+                <oxy:Plot.BorderBrush>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.BorderBrush>
+            </oxy:Plot>
+
+            <oxy:Plot Name="plot_5_6"  Width="72" PlotAreaBorderThickness="0" 
+                      BorderThickness="0" HorizontalAlignment="Center" Panel.ZIndex="-2" 
+                      IsEnabled="False" Margin="120, 0, 2, 0">
+
+                <oxy:Plot.Series>
+                    <oxy:LineSeries Color="Black" BorderThickness="0">
+                        <oxy:LineSeries.BorderBrush>
+                            <SolidColorBrush Color="Black" Opacity="0"/>
+                        </oxy:LineSeries.BorderBrush>
+                    </oxy:LineSeries>
+                </oxy:Plot.Series>
+
+                <oxy:Plot.Axes>
+                    <oxy:LinearAxis Position="Left" IsAxisVisible="False"  Maximum="30" Minimum="-30"/>
+                    <oxy:LinearAxis Position="Bottom" IsAxisVisible="False" Maximum="50" Minimum="0"/>
+                </oxy:Plot.Axes>
+
+                <oxy:Plot.Background>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.Background>
+                <oxy:Plot.BorderBrush>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.BorderBrush>
+            </oxy:Plot>
+
+            <oxy:Plot Name="plot_6_7"  Width="72" PlotAreaBorderThickness="0" 
+                      BorderThickness="0" HorizontalAlignment="Center" Panel.ZIndex="-2" 
+                      IsEnabled="False" Margin="240, 0, 2, 0">
+
+                <oxy:Plot.Series>
+                    <oxy:LineSeries Color="Black" BorderThickness="0">
+                        <oxy:LineSeries.BorderBrush>
+                            <SolidColorBrush Color="Black" Opacity="0"/>
+                        </oxy:LineSeries.BorderBrush>
+                    </oxy:LineSeries>
+                </oxy:Plot.Series>
+
+                <oxy:Plot.Axes>
+                    <oxy:LinearAxis Position="Left" IsAxisVisible="False"  Maximum="30" Minimum="-30"/>
+                    <oxy:LinearAxis Position="Bottom" IsAxisVisible="False" Maximum="50" Minimum="0"/>
+                </oxy:Plot.Axes>
+
+                <oxy:Plot.Background>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.Background>
+                <oxy:Plot.BorderBrush>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.BorderBrush>
+            </oxy:Plot>
+
+            <oxy:Plot Name="plot_7_8"  Width="72" PlotAreaBorderThickness="0" 
+                      BorderThickness="0" HorizontalAlignment="Center" Panel.ZIndex="-2" 
+                      IsEnabled="False" Margin="360, 0, 2, 0">
+
+                <oxy:Plot.Series>
+                    <oxy:LineSeries Color="Black" BorderThickness="0">
+                        <oxy:LineSeries.BorderBrush>
+                            <SolidColorBrush Color="Black" Opacity="0"/>
+                        </oxy:LineSeries.BorderBrush>
+                    </oxy:LineSeries>
+                </oxy:Plot.Series>
+
+                <oxy:Plot.Axes>
+                    <oxy:LinearAxis Position="Left" IsAxisVisible="False"  Maximum="30" Minimum="-30"/>
+                    <oxy:LinearAxis Position="Bottom" IsAxisVisible="False" Maximum="50" Minimum="0"/>
+                </oxy:Plot.Axes>
+
+                <oxy:Plot.Background>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.Background>
+                <oxy:Plot.BorderBrush>
+                    <SolidColorBrush Color="White" Opacity="0"/>
+                </oxy:Plot.BorderBrush>
+            </oxy:Plot>
+
+        </Grid>
+
         <Image Name="resetEqualizer"
                Source="reset.png" 
-               Width="15"
-               Height="15"
-               Margin="0, 0, 20, 2"
+               Width="20"
+               Height="20"
+               Margin="0, 0, 30, 2"
                VerticalAlignment="Bottom"
                MouseEnter="ImageButton_MouseEnter" 
                MouseLeave="ImageButton_MouseLeave"
                MouseUp="resetEqualizer_MouseUp"/>
-        
+
         <Image Name="saveEqualizer"
                Source="save.png" 
-               Width="15"
-               Height="15"
-               Margin="20, 0, 0, 2"
+               Width="20"
+               Height="20"
+               Margin="30, 0, 0, 2"
                VerticalAlignment="Bottom"
                MouseEnter="ImageButton_MouseEnter" 
                MouseLeave="ImageButton_MouseLeave"
                MouseUp="saveEqualizer_MouseUp"/>
+        <Button Name="testButtonChart" 
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Width="20"
+                Height="20"
+                Click="testButtonChart_Click"/>
     </Grid>
 </Window>
