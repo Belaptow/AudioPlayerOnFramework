@@ -32,6 +32,8 @@ namespace AudioPlayer
     public partial class MainWindow : Window
     {
         #region Переменные
+        Visualizer visualizerWindow;
+
         public List<Track> tracksList = new List<Track>(); //List of tracks in datagrid
 
         public List<Window> childWindows = new List<Window>(); //All side-child windows
@@ -45,7 +47,7 @@ namespace AudioPlayer
         public string exePath = AppDomain.CurrentDomain.BaseDirectory; //path to executable
         public string[] allowedExtensions = new string[] { ".wav", ".mp3" }; //filter of allowed extensions
 
-        public AudioFileReader mainReader; //main audio reader and stream provider
+        public static AudioFileReader mainReader; //main audio reader and stream provider
         public WaveOutEvent outputDevice; //audio output
 
         //Settings file to keep data between launches
@@ -113,8 +115,15 @@ namespace AudioPlayer
                 Debug.WriteLine("\n CONTENT RENDERED \n");
                 CreateToggleHideableWindow(">", "Equalizer", "Эквалайзер"); //create equalizer on the right
                 CreateToggleHideableWindow("<", "AudioSearch", "Поиск аудио");
-                CreateToggleHideableWindow(">", "AudioEditor", "Редактор трека");
-                CreateToggleHideableWindow("<", "Visualizer", "Визуализатор");
+                CreateToggleHideableWindow("<", "AudioEditor", "Редактор трека");
+                CreateToggleHideableWindow(">", "Visualizer", "Визуализатор");
+                foreach(Window w in childWindows)
+                {
+                    if (((ToggleHideableWindow)w).window == "Visualizer")
+                    {
+                        visualizerWindow = (Visualizer)((ToggleHideableWindow)w).windowToOpen;
+                    }
+                }
                 CreateToggleHideableWindow(">", "null", "Окно 5");
                 CreateToggleHideableWindow("<", "null", "Окно 6");
             }
@@ -428,7 +437,8 @@ namespace AudioPlayer
 
                 outputDevice = new WaveOutEvent(); //set audio output
                 mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath); //set reader as stream provider
-                equalizer = new Equalizer(mainReader, bands); //create new equalizer with mainReader as stream provider and bands as equalizer data
+                //visualizerWindow.CreateAggregator();
+                equalizer = new SampleAggregator(mainReader, bands); //create new equalizer with mainReader as stream provider and bands as equalizer data
                 outputDevice.Init(equalizer); //Initialize equalizer in audio output
                 outputDevice.Play();
                 Timer();

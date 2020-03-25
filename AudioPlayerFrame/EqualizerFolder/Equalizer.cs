@@ -29,7 +29,7 @@ namespace AudioPlayer
 
         //on creation of this class filters are being created
         //on update PeakingEQ of each channel in stream is being updated for each band
-        private void CreateFilters() 
+        public void CreateFilters() 
         {
             for (int bandIndex = 0; bandIndex < bandCount; bandIndex++) //do this for each band
             {
@@ -54,7 +54,8 @@ namespace AudioPlayer
         public WaveFormat WaveFormat { get { return sourceProvider.WaveFormat; } } //format of (??)waves(??) of stream 
 
         //Don't know what this does, it is never referenced
-        public int Read(float[] buffer, int offset, int count)
+        //UPDATE: this fires every time it reads data from source provider
+        public virtual int Read(float[] buffer, int offset, int count)
         {
             int samplesRead = sourceProvider.Read(buffer, offset, count);
 

@@ -78,6 +78,10 @@
     <Compile Include="ToggleHideableWindow.xaml.cs">
       <DependentUpon>ToggleHideableWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VisualizationFolder\SampleAggregator.cs" />
+    <Compile Include="VisualizationFolder\Visualizer.xaml.cs">
+      <DependentUpon>Visualizer.xaml</DependentUpon>
+    </Compile>
     <Page Include="EqualizerFolder\EqualizerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -101,6 +105,10 @@
     <Page Include="ToggleHideableWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="VisualizationFolder\Visualizer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

@@ -226,7 +226,6 @@ namespace AudioPlayer
             this.heightDifference = leftVal - rightVal;
             this.Points = new List<DataPoint>();
             int count = (int)Math.Ceiling((Math.PI) / step);
-            //Debug.WriteLine("\nКол-во точек: " + count + "\n");
             for (int i = 0; i <= count; i++)
             {
                 this.Points.Add(new DataPoint(i*step, Calculate(i*step)));

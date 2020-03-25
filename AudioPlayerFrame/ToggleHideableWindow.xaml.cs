@@ -21,8 +21,8 @@ namespace AudioPlayer
         public double openedOffset { get; set; }
         private string toolTip;
         private string arrow;
-        private string window;
-        private Window windowToOpen;
+        public string window;
+        public Window windowToOpen;
         public bool opened = false;
 
         public ToggleHideableWindow(string arrow, string window, string toolTip)
@@ -47,6 +47,10 @@ namespace AudioPlayer
                 case "Equalizer":
                     //MessageBox.Show("Открытие эквалайзера");
                     windowToOpen = new EqualizerWindow();
+                    windowToOpen.Owner = Application.Current.MainWindow;
+                    break;
+                case "Visualizer":
+                    windowToOpen = new Visualizer();
                     windowToOpen.Owner = Application.Current.MainWindow;
                     break;
                 default:
