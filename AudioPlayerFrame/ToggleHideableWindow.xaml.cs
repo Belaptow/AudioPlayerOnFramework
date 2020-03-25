@@ -18,11 +18,13 @@ namespace AudioPlayer
     /// </summary>
     public partial class ToggleHideableWindow : Window
     {
+        public double openedOffset { get; set; }
         private string toolTip;
         private string arrow;
         private string window;
         private Window windowToOpen;
         public bool opened = false;
+
         public ToggleHideableWindow(string arrow, string window, string toolTip)
         {
             InitializeComponent();
@@ -35,6 +37,8 @@ namespace AudioPlayer
 
             toggleAttachedWindowButton.Content = arrow;
             toggleAttachedWindowButton.ToolTip = this.toolTip;
+
+            this.openedOffset = 0;
 
             UpdatePosition();
 
@@ -56,8 +60,9 @@ namespace AudioPlayer
         {
             try
             {
-                if (opened) //Если окно уже открыто
+                if (opened) //Если окно уже открыто и его надо закрыть
                 {
+                    UpdateOpenedOffsetOnClose();
                     switch (arrow)
                     {
                         case "<": //Если закрыть надо справа
@@ -76,8 +81,9 @@ namespace AudioPlayer
                             break;
                     }
                 }
-                else //Если окно ещё не открыто
+                else //Если окно ещё не открыто и его надо открыть
                 {
+                    UpdateOpenedOffsetOnOpen();
                     switch (arrow)
                     {
                         case ">": //Если открыть надо справа
@@ -105,6 +111,11 @@ namespace AudioPlayer
             }
         }
 
+        //Отступ сверху для кнопки = 
+        //Отступ сверху которым обладает родитель этого окна + 
+        //30 (высота шапки родителя) + 
+        //22 (высота кнопки + 2) * индекс этой кнопки в списке боковых окон родителя +
+        //Свдиг сверху, который равен сумме высот всех открытых боковых окон
         public void UpdatePosition()
         {
             try
@@ -114,12 +125,12 @@ namespace AudioPlayer
                     switch (arrow)
                     {
                         case "<": //Если окно справа
-                            this.Top = this.Owner.Top + 30 + (22 * ((MainWindow)this.Owner).childWindowsRight.IndexOf(this));
+                            this.Top = this.Owner.Top + 30 + (22 * ((MainWindow)this.Owner).childWindowsRight.IndexOf(this)) + this.openedOffset;
                             this.Left = this.Owner.Left + this.Owner.Width + windowToOpen.Width - 5;
                             UpdateWindowToOpenPosition();
                             break;
                         case ">": //Если окно слева
-                            this.Top = this.Owner.Top + 30 + (22 * ((MainWindow)this.Owner).childWindowsLeft.IndexOf(this));
+                            this.Top = this.Owner.Top + 30 + (22 * ((MainWindow)this.Owner).childWindowsLeft.IndexOf(this)) + this.openedOffset;
                             this.Left = this.Owner.Left - windowToOpen.Width - this.Width + 5;
                             UpdateWindowToOpenPosition();
                             break;
@@ -130,13 +141,11 @@ namespace AudioPlayer
                     switch (arrow)
                     {
                         case ">": //Если кнопка справа
-                            //Debug.WriteLine("Индекс окна справа: " + ((MainWindow)this.Owner).childWindowsRight.IndexOf(this));
-                            this.Top = this.Owner.Top + 30 + (22 * ((MainWindow)this.Owner).childWindowsRight.IndexOf(this));
+                            this.Top = this.Owner.Top + 30 + (22 * ((MainWindow)this.Owner).childWindowsRight.IndexOf(this)) + this.openedOffset;
                             this.Left = this.Owner.Left + this.Owner.Width - 5;
                             break;
                         case "<": //Если кнопка слева
-                            //Debug.WriteLine("Индекс окна слева: " + ((MainWindow)this.Owner).childWindowsLeft.IndexOf(this));
-                            this.Top = this.Owner.Top + 30 + (22 * ((MainWindow)this.Owner).childWindowsLeft.IndexOf(this));
+                            this.Top = this.Owner.Top + 30 + (22 * ((MainWindow)this.Owner).childWindowsLeft.IndexOf(this)) + this.openedOffset;
                             this.Left = this.Owner.Left - this.Width + 5;
                             break;
                         default:
@@ -150,6 +159,7 @@ namespace AudioPlayer
             }
         }
 
+        //Апдейт позиции приреплённого окна
         public void UpdateWindowToOpenPosition()
         {
             if (opened)
@@ -157,11 +167,11 @@ namespace AudioPlayer
                 switch (arrow)
                 {
                     case "<":
-                        windowToOpen.Top = this.Owner.Top + 30;
+                        windowToOpen.Top = this.Top;
                         windowToOpen.Left = this.Owner.Left + this.Owner.Width - 5;
                         break;
                     case ">":
-                        windowToOpen.Top = this.Owner.Top + 30;
+                        windowToOpen.Top = this.Top;
                         windowToOpen.Left = this.Owner.Left - windowToOpen.Width + 5;
                         break;
                     default:
@@ -169,5 +179,72 @@ namespace AudioPlayer
                 }
             }
         }
+
+        //Update offset of all windows lower than current on close
+        public void UpdateOpenedOffsetOnClose()
+        {
+            try
+            {
+                switch (arrow)
+                {
+                    case "<": //Если обновить смещение нужно справа
+                        for (int i = ((MainWindow)this.Owner).childWindowsRight.IndexOf(this) + 1;
+                             i < ((MainWindow)this.Owner).childWindowsRight.Count;
+                             i++)
+                        {
+                            ((ToggleHideableWindow)((MainWindow)this.Owner).childWindowsRight[i]).openedOffset -= this.windowToOpen.Height - 20;
+                            ((ToggleHideableWindow)((MainWindow)this.Owner).childWindowsRight[i]).UpdatePosition();
+                        }
+                        break;
+                    case ">": //Если обновить смещение нужно слева
+                        for (int i = ((MainWindow)this.Owner).childWindowsLeft.IndexOf(this) + 1;
+                             i < ((MainWindow)this.Owner).childWindowsLeft.Count;
+                             i++)
+                        {
+                            ((ToggleHideableWindow)((MainWindow)this.Owner).childWindowsLeft[i]).openedOffset -= this.windowToOpen.Height - 20;
+                            ((ToggleHideableWindow)((MainWindow)this.Owner).childWindowsLeft[i]).UpdatePosition();
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+        }
+
+        //Update offset of all windows lower than current on open
+        public void UpdateOpenedOffsetOnOpen()
+        {
+            try
+            {
+                switch (arrow)
+                {
+                    case "<": //Если обновить смещение нужно слева
+                        for (int i = ((MainWindow)this.Owner).childWindowsLeft.IndexOf(this) + 1; 
+                             i < ((MainWindow)this.Owner).childWindowsLeft.Count; 
+                             i++)
+                        {
+                            ((ToggleHideableWindow)((MainWindow)this.Owner).childWindowsLeft[i]).openedOffset += this.windowToOpen.Height - 20;
+                            ((ToggleHideableWindow)((MainWindow)this.Owner).childWindowsLeft[i]).UpdatePosition();
+                        }
+                        break;
+                    case ">": //Если обновить смещение нужно справа
+                        for (int i = ((MainWindow)this.Owner).childWindowsRight.IndexOf(this) + 1;
+                             i < ((MainWindow)this.Owner).childWindowsRight.Count;
+                             i++)
+                        {
+                            ((ToggleHideableWindow)((MainWindow)this.Owner).childWindowsRight[i]).openedOffset += this.windowToOpen.Height - 20;
+                            ((ToggleHideableWindow)((MainWindow)this.Owner).childWindowsRight[i]).UpdatePosition();
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+        }
+
     }
 }

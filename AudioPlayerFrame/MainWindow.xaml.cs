@@ -115,6 +115,8 @@ namespace AudioPlayer
                 CreateToggleHideableWindow("<", "Equalizer", "Поиск аудио");
                 CreateToggleHideableWindow(">", "Equalizer", "Редактор трека");
                 CreateToggleHideableWindow("<", "Equalizer", "Окно 4");
+                CreateToggleHideableWindow(">", "Equalizer", "Окно 5");
+                CreateToggleHideableWindow("<", "Equalizer", "Окно 6");
             }
             catch (Exception ex)
             {
