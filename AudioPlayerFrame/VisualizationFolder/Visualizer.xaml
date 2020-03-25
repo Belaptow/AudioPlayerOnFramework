@@ -17,10 +17,11 @@
         </Style>
     </Window.Resources>
     <Grid>
-        <oxy:Plot Name="spectrumAnalyserGraph" 
+        <oxy:Plot Name="spectrumAnalyserPlot" 
                   PlotAreaBorderThickness="0" 
                   BorderThickness="0"
-                  IsEnabled="False">
+                  IsEnabled="True"
+                  Visibility="Hidden">
 
             <oxy:Plot.Series>
                 <oxy:LineSeries Color="Red" BorderThickness="0">
@@ -36,5 +37,6 @@
             </oxy:Plot.Axes>
             
         </oxy:Plot>
+        <ContentPresenter Name="contentPresenterSpectrum"/>
     </Grid>
 </Window>

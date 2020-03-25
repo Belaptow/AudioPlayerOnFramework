@@ -31,17 +31,28 @@ namespace AudioPlayer
 
         public SampleAggregator aggregator;
         public WaveOutEvent testEvent;
+        public bool firstFire = true;
+        public SpectrumAnalyser spectrumAnalyser = new SpectrumAnalyser();
 
         public Visualizer()
         {
             InitializeComponent();
+            //UpdatePlot();
+            contentPresenterSpectrum.Content = spectrumAnalyser;
         }
 
         public void UpdatePlot()
         {
             try
             {
-
+                //List<DataPoint> points = new List<DataPoint>();
+                //Random rnd = new Random();
+                //for (int i = 0; i < 20; i++)
+                //{
+                //    points.Add(new DataPoint(i * 10, rnd.Next(0, 101)));
+                //}
+                //spectrumAnalyserPlot.Series[0].ItemsSource = points;
+                
             }
             catch (Exception ex)
             {
@@ -73,31 +84,46 @@ namespace AudioPlayer
             }).Start();
         }
 
-        public void CreateAggregator()
-        {
-            try
-            {
-                Debug.WriteLine("Aggregator creation");
-                aggregator = new SampleAggregator(MainWindow.mainReader, MainWindow.bands);
-                aggregator.NotificationCount = MainWindow.mainReader.WaveFormat.SampleRate / 100;
-                aggregator.PerformFFT = true;
-                aggregator.FftCalculated += (s, a) => FftCalculatedFired(s, a);
-                WaveOutEvent testEvent = new WaveOutEvent();
-                testEvent.Init(aggregator);
-                //testEvent.Volume = 0;
-                //testEvent.Play();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("\n" + ex + "\n");
-            }
-        }
+        //public void CreateAggregator()
+        //{
+        //    try
+        //    {
+        //        Debug.WriteLine("Aggregator creation");
+        //        aggregator = new SampleAggregator(MainWindow.mainReader, MainWindow.bands);
+        //        aggregator.NotificationCount = MainWindow.mainReader.WaveFormat.SampleRate / 100;
+        //        aggregator.PerformFFT = true;
+        //        aggregator.FftCalculated += (s, a) => FftCalculatedFired(s, a);
+        //        WaveOutEvent testEvent = new WaveOutEvent();
+        //        testEvent.Init(aggregator);
+        //        //testEvent.Volume = 0;
+        //        //testEvent.Play();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine("\n" + ex + "\n");
+        //    }
+        //}
 
         public void FftCalculatedFired(object s, FftEventArgs a)
         {
             try
             {
-
+                //if (firstFire && MainWindow.mainReader.CurrentTime > TimeSpan.FromSeconds(4))
+                //{
+                    
+                //    Debug.WriteLine("\nПервая отработка, вывод значений массива\n");
+                //    spectrumAnalyser.Update(a.Result);
+                //    foreach (Complex num in a.Result)
+                //    {
+                //        Debug.WriteLine("X = " + num.X + " Y = " + num.Y);
+                //    }
+                //    Debug.WriteLine("\n");
+                //    firstFire = false;
+                //}
+                Dispatcher.Invoke((Action)delegate ()
+                {
+                    spectrumAnalyser.Update(a.Result);
+                });
             }
             catch (Exception ex)
             {

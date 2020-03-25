@@ -60,7 +60,7 @@ namespace AudioPlayer
 
         //Equalizer inherits from ISampleProvider, pass stream provider and bands array
         //Update on bands gain value change
-        public static Equalizer equalizer; 
+        public static SampleAggregator equalizer; 
         //Equalizer band, add to array
         //Values to set: Bandwidth (default 0.8f), Frequency, Gain
         public static EqualizerBand[] bands;
@@ -402,7 +402,7 @@ namespace AudioPlayer
                         {
                             playerControlSlider.Value = mainReader.CurrentTime.TotalSeconds; //Update slider value
                         });
-                        Thread.Sleep(100); 
+                        Thread.Sleep(10); 
                     }
                     //when song is stopped for some reason
                     Dispatcher.Invoke((Action)delegate ()
@@ -438,8 +438,15 @@ namespace AudioPlayer
                 outputDevice = new WaveOutEvent(); //set audio output
                 mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath); //set reader as stream provider
                 //visualizerWindow.CreateAggregator();
+
+
                 equalizer = new SampleAggregator(mainReader, bands); //create new equalizer with mainReader as stream provider and bands as equalizer data
+                equalizer.NotificationCount = MainWindow.mainReader.WaveFormat.SampleRate / 100;
+                equalizer.PerformFFT = true;
+                equalizer.FftCalculated += (s, a) => visualizerWindow.FftCalculatedFired(s, a);
                 outputDevice.Init(equalizer); //Initialize equalizer in audio output
+
+
                 outputDevice.Play();
                 Timer();
             }
@@ -564,10 +571,14 @@ namespace AudioPlayer
             try
             {
                 playerControlSlider.Value = playerControlSlider.Minimum;
-                if (outputDevice != null) outputDevice.Stop();
-                outputDevice = null;
-                mainReader = null;
-                playerControlPlay_MouseUp(null, null);
+                outputDevice.Play();
+                Timer();
+                //Debug.WriteLine("\n" + outputDevice.PlaybackState);
+                //if (outputDevice != null) outputDevice.Pause();
+                //Debug.WriteLine(outputDevice.PlaybackState + "\n");
+                //outputDevice = null;
+                //mainReader = null;
+                //playerControlPlay_MouseUp(null, null);
             }
             catch (Exception ex)
             {
@@ -686,7 +697,7 @@ namespace AudioPlayer
             try
             {
                 mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath);
-                equalizer = new Equalizer(mainReader, bands);
+                equalizer = new SampleAggregator(mainReader, bands);
                 outputDevice = new WaveOutEvent();
                 outputDevice.Init(equalizer);
                 outputDevice.Play();
