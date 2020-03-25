@@ -19,6 +19,9 @@ namespace AudioPlayer
     /// <summary>
     /// Interaction logic for Equalizer.xaml
     /// </summary>
+    
+    //TODO: Ещё раз пройтись по эквалайзеру, добавить комментариев
+    
     public partial class EqualizerWindow : Window
     {
         public Dictionary<string, GraphBuilder> graphs = new Dictionary<string, GraphBuilder>();
@@ -40,6 +43,7 @@ namespace AudioPlayer
 
         }
 
+        //Изменение значения слайдера
         private void BandValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             try
@@ -49,7 +53,7 @@ namespace AudioPlayer
 
                 foreach (System.Windows.UIElement element in equalizerChartGrid.Children)
                 {
-                    if (curveChoiceCombo.SelectedIndex == 1)
+                    if (curveChoiceCombo.SelectedIndex == 1) //Если выбрана отрисовка безье - источник данных для всех плотов сбрасывается
                     {
                         ((Plot)element).Series[0].ItemsSource = null;
                         continue;
@@ -58,7 +62,7 @@ namespace AudioPlayer
                     ((Plot)element).Series[0].ItemsSource = new GraphBuilder(MainWindow.bands[int.Parse(((Plot)element).Name.Split('_')[1]) - 1].Gain,
                                                                              MainWindow.bands[int.Parse(((Plot)element).Name.Split('_')[2]) - 1].Gain).Points;
                 }
-                if (curveChoiceCombo.SelectedIndex == 1) drawBezie(); else canvas.Children.Clear();
+                if (curveChoiceCombo.SelectedIndex == 1) drawBezie(); else canvas.Children.Clear(); //Если выбран безье - отрисовать кривую безье, иначе - зачистить холст
             }
             catch (Exception ex)
             {
@@ -81,6 +85,7 @@ namespace AudioPlayer
         }
         #endregion
 
+        //Сброс значений эквалайзера на ноль
         private void resetEqualizer_MouseUp(object sender, MouseButtonEventArgs e)
         {
             try
@@ -96,6 +101,7 @@ namespace AudioPlayer
             }
         }
 
+        //Сохранение настройки эквалайзера
         private void saveEqualizer_MouseUp(object sender, MouseButtonEventArgs e)
         {
             try
@@ -112,6 +118,7 @@ namespace AudioPlayer
             }
         }
 
+        //Тестовая кнопка
         private void testButtonChart_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -156,18 +163,21 @@ namespace AudioPlayer
             }
         }
 
+        //Отрисовка графика безье
         private void drawBezie()
         {
             try
             {
-                int multipllier = 0;
-                double canvasStep = 50;
-                //Debug.WriteLine("Шаг канваса: " + canvasStep);
+                int multipllier = 0; //множитель для вычисления координаты X
+                double canvasStep = 50; //Шаг по холсту
 
-                Point[] pointsArrayTest = new Point[MainWindow.bands.Length];
+                Point[] pointsArrayTest = new Point[MainWindow.bands.Length]; //Массив точек, длина равна кол-ву bands
 
                 foreach (EqualizerBand band in MainWindow.bands)
                 {
+                    //Добавление новых точек в массив точек для каждого band
+                    //X = шаг канваса * коофициент масштабирования по X * текущий множитель (индекс band)
+                    //Y = Значение gain у текущего band пропущенное через конвертер для значений Y
                     pointsArrayTest[multipllier] = new Point(canvasStep * multipllier * scaleX, yConvert(band.Gain));
                     multipllier++;
                 }
@@ -181,11 +191,15 @@ namespace AudioPlayer
             }
         }
 
+        //Конвертер значений Y
         double yConvert(double y)
         {
+            //Y =  число, противоположенное входящему + 30 
+            //Возвращает вычисленный Y умноженный на коофициент масштабирования по оси Y
             return ((y * (-1)) + 30) * scaleY;
         }
 
+        //Перерисовка кривой при смене режима отображения кривой
         private void curveChoiceCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             BandValueChanged(Band_1, null);
@@ -221,6 +235,7 @@ namespace AudioPlayer
 
         public double Calculate(double x)
         {
+            //Формула прямой
             //return ((-1) * ((this.leftVal * x) / 50)) +
             //       this.leftVal +
             //       ((this.rightVal * x) / 50);
@@ -228,6 +243,11 @@ namespace AudioPlayer
             //y = a + b * cos(c * x + d) - формула синусоиды
 
             //y = heightDifference * cos(x + (PI / 2) - тест формула
+
+            //Итоговая формула:
+            //Смещение по оси Y = разность между значением слева и значением справа делённая пополам + значение справа
+            //Коофициент амплитуды колебаний = разность между значением слева и значением справа делённая пополам
+            //Смещение по оси Y прибавляется к косинусу X, умноженному на кооф. амплитуды колебаний
 
             return (heightDifference / 2) + ((heightDifference / 2) * Math.Cos(x)) + this.rightVal;
         }

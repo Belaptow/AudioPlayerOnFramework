@@ -112,11 +112,11 @@ namespace AudioPlayer
             {
                 Debug.WriteLine("\n CONTENT RENDERED \n");
                 CreateToggleHideableWindow(">", "Equalizer", "Эквалайзер"); //create equalizer on the right
-                CreateToggleHideableWindow("<", "Equalizer", "Поиск аудио");
-                CreateToggleHideableWindow(">", "Equalizer", "Редактор трека");
-                CreateToggleHideableWindow("<", "Equalizer", "Окно 4");
-                CreateToggleHideableWindow(">", "Equalizer", "Окно 5");
-                CreateToggleHideableWindow("<", "Equalizer", "Окно 6");
+                CreateToggleHideableWindow("<", "AudioSearch", "Поиск аудио");
+                CreateToggleHideableWindow(">", "AudioEditor", "Редактор трека");
+                CreateToggleHideableWindow("<", "Visualizer", "Визуализатор");
+                CreateToggleHideableWindow(">", "null", "Окно 5");
+                CreateToggleHideableWindow("<", "null", "Окно 6");
             }
             catch (Exception ex)
             {
