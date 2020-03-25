@@ -72,7 +72,6 @@
     </ApplicationDefinition>
     <Compile Include="EqualizerFolder\BezierSpline.cs" />
     <Compile Include="EqualizerFolder\CustomBezierBuilder.cs" />
-    <Compile Include="EqualizerFolder\CustomCanvas.cs" />
     <Compile Include="EqualizerFolder\Equalizer.cs" />
     <Compile Include="EqualizerFolder\EqualizerBand.cs" />
     <Compile Include="TimespanToDoubleConverter.cs" />

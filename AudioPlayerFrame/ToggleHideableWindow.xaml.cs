@@ -45,11 +45,9 @@ namespace AudioPlayer
                     windowToOpen = new EqualizerWindow();
                     windowToOpen.Owner = Application.Current.MainWindow;
                     break;
-                case "Visualizer":
-                    //MessageBox.Show("Открытие визуализатора");
-                    break;
                 default:
-                    MessageBox.Show("Некорретный аргумент для открытия окна");
+                    //MessageBox.Show("Некорретный аргумент для открытия окна");
+                    toggleAttachedWindowButton.IsEnabled = false;
                     break;
             }
         }

@@ -32,51 +32,60 @@ namespace AudioPlayer
     public partial class MainWindow : Window
     {
         #region Переменные
-        public List<Track> tracksList = new List<Track>();
+        public List<Track> tracksList = new List<Track>(); //List of tracks in datagrid
 
-        public List<Window> childWindows = new List<Window>();
-        public List<Window> childWindowsLeft = new List<Window>();
-        public List<Window> childWindowsRight = new List<Window>();
+        public List<Window> childWindows = new List<Window>(); //All side-child windows
+        public List<Window> childWindowsLeft = new List<Window>(); //left ones
+        public List<Window> childWindowsRight = new List<Window>(); //right ones
 
-        public string[] playbackOptionsArray = new string[] { "loop.png", "repeat.png", "one.png", "random.png" };
-        public int selectedPlaybackOptionIndex = 0;
+        public string[] playbackOptionsArray = new string[] { "loop.png", "repeat.png", "one.png", "random.png" }; //playback options, used in switch
+        public int selectedPlaybackOptionIndex = 0; //current selected option index
 
-        public string workingFolderPath = @"defaultWorkingFolder";
-        public string exePath = AppDomain.CurrentDomain.BaseDirectory;
-        public string[] allowedExtensions = new string[] { ".wav", ".mp3" };
+        public string workingFolderPath = @"defaultWorkingFolder"; //path to folder with audio files
+        public string exePath = AppDomain.CurrentDomain.BaseDirectory; //path to executable
+        public string[] allowedExtensions = new string[] { ".wav", ".mp3" }; //filter of allowed extensions
 
-        public AudioFileReader mainReader;
-        public WaveOutEvent outputDevice;
+        public AudioFileReader mainReader; //main audio reader and stream provider
+        public WaveOutEvent outputDevice; //audio output
 
-        public static XmlDocument settingsFile = new XmlDocument();
-        public static string pathToSettingsFile = AppDomain.CurrentDomain.BaseDirectory + @"\Settings.xml";
+        //Settings file to keep data between launches
+        //Stores:
+        //status firstLaunch = true/false
+        //path to audio folder
+        //Bands values, if equalizer settings were saved by user
+        public static XmlDocument settingsFile = new XmlDocument(); 
+        public static string pathToSettingsFile = AppDomain.CurrentDomain.BaseDirectory + @"\Settings.xml"; //path to settings file
 
-        public static Equalizer equalizer;
+        //Equalizer inherits from ISampleProvider, pass stream provider and bands array
+        //Update on bands gain value change
+        public static Equalizer equalizer; 
+        //Equalizer band, add to array
+        //Values to set: Bandwidth (default 0.8f), Frequency, Gain
         public static EqualizerBand[] bands;
         #endregion
 
+        //Logic on startup
         public MainWindow()
         {
             try
             {
                 InitializeComponent();
-                settingsFile.Load(pathToSettingsFile);
+                settingsFile.Load(pathToSettingsFile); //Load settings file
                 Debug.WriteLine("\n INITIALIZING \n");
                 Debug.WriteLine("\nПуть к исполняемогу файлу: " + exePath + "\n");
-                if (settingsFile.DocumentElement["firstLaunch"].InnerText == "true")
+                if (settingsFile.DocumentElement["firstLaunch"].InnerText == "true") //if first launch
                 {
-                    
                     Debug.WriteLine("\nПЕРВЫЙ ЗАПУСК\n");
-                    System.Windows.MessageBox.Show("Первый запуск");
-                    settingsFile.DocumentElement["firstLaunch"].InnerText = "false";
-                    settingsFile.DocumentElement["workingFolder"].InnerText = exePath + workingFolderPath;
-                    System.IO.Directory.CreateDirectory(settingsFile.DocumentElement["workingFolder"].InnerText);
+                    //System.Windows.MessageBox.Show("Первый запуск");
+                    settingsFile.DocumentElement["firstLaunch"].InnerText = "false"; //set first launch status to false
+                    settingsFile.DocumentElement["workingFolder"].InnerText = exePath + workingFolderPath; //set working folder path to default
+                    System.IO.Directory.CreateDirectory(settingsFile.DocumentElement["workingFolder"].InnerText); //Create folder if not exists
                 }
                 workingFolderPath = settingsFile.DocumentElement["workingFolder"].InnerText;
-                RefreshDataGrid();
-                settingsFile.Save(pathToSettingsFile);
+                RefreshDataGrid(); //refreshes datagrid
+                settingsFile.Save(pathToSettingsFile); //save settings file
 
-                bands = new EqualizerBand[]
+                bands = new EqualizerBand[] //assign equalizer bands to bands array
                 {
                     new EqualizerBand {Bandwidth = 0.8f, Frequency = 100, Gain = float.Parse(settingsFile.DocumentElement["Band1"].InnerText)},
                     new EqualizerBand {Bandwidth = 0.8f, Frequency = 200, Gain = float.Parse(settingsFile.DocumentElement["Band2"].InnerText)},
@@ -87,7 +96,7 @@ namespace AudioPlayer
                     new EqualizerBand {Bandwidth = 0.8f, Frequency = 4800, Gain = float.Parse(settingsFile.DocumentElement["Band7"].InnerText)},
                     new EqualizerBand {Bandwidth = 0.8f, Frequency = 9600, Gain = float.Parse(settingsFile.DocumentElement["Band8"].InnerText)},
                 };
-                Debug.WriteLine("\nКол-во полос = " + (bands.Length) + "\n");
+                //Debug.WriteLine("\nКол-во полос = " + (bands.Length) + "\n");
             }
             catch (Exception ex)
             {
@@ -96,12 +105,13 @@ namespace AudioPlayer
         }
 
         //После отрисовки содержимого окна
+        //creating side panels only ofter content render is essential because they assign its owner value to mainwindow
         private void Window_ContentRendered(object sender, EventArgs e)
         {
             try
             {
                 Debug.WriteLine("\n CONTENT RENDERED \n");
-                CreateToggleHideableWindow(">", "Equalizer", "Эквалайзер");
+                CreateToggleHideableWindow(">", "Equalizer", "Эквалайзер"); //create equalizer on the right
                 CreateToggleHideableWindow("<", "Equalizer", "Поиск аудио");
                 CreateToggleHideableWindow(">", "Equalizer", "Редактор трека");
                 CreateToggleHideableWindow("<", "Equalizer", "Окно 4");
@@ -117,27 +127,28 @@ namespace AudioPlayer
         {
             try
             {
-                tracksDataGrid.ItemsSource = null;
+                //resetting datagrid and list of tracks
+                tracksDataGrid.ItemsSource = null; 
                 tracksList.Clear();
+
+                //for each file that satisfies set mask
                 foreach(string file in System.IO.Directory.GetFiles(workingFolderPath).Where(file => allowedExtensions.Any(file.ToLower().EndsWith)))
                 {
                     //Debug.WriteLine("filename = " + file);
-                    GetAudioLength(file);
-                    var newTrack = new Track
+                    var newTrack = new Track //create new track based on file
                     {
-                        name = System.IO.Path.GetFileName(file),
-                        duration = GetAudioLength(file),
-                        extension = System.IO.Path.GetExtension(file),
-                        filePath = file,
-                        audioTimeSpanLength = GetAudioTimeSpanLength(file)
+                        name = System.IO.Path.GetFileName(file), //name of track with extension
+                        duration = GetAudioLength(file), //audiofile length in string format mm:ss
+                        extension = System.IO.Path.GetExtension(file), //extension of file
+                        filePath = file, //path to file
+                        audioTimeSpanLength = GetAudioTimeSpanLength(file) //audio length in seconds (TimeSpan)
                     };
-                    //tracksDataGrid.Items.Add(newTrack);
                     tracksList.Add(newTrack);
                 }
-                tracksDataGrid.ItemsSource = tracksList;
+                tracksDataGrid.ItemsSource = tracksList; //setting ItemSource automatically rerenders datagrid
                 if (tracksDataGrid.Items.Count > 0)
                 {
-                    tracksDataGrid.SelectedIndex = 0;
+                    tracksDataGrid.SelectedIndex = 0; //default selected track on startup is first
                 }
             }
             catch (Exception ex)
@@ -147,11 +158,16 @@ namespace AudioPlayer
         }
 
         //Создание кнопки доп окна
+        //pass:
+        //arrow which will be assigned to button content, can be either "<" for left or ">" for right
+        //windowName - name of window to create, based on it new side panel will be created, corresponds to class of window to create
+        //if incorrect window name is passed - button will be disabled. Check is done in switch in ToggleHideadbleWindow
+        //tooltip - tooltip that will be assigned to the button
         private void CreateToggleHideableWindow(string arrow, string windowName, string toolTip)
         {
             try
             {
-                Window newSideBarWindow = new ToggleHideableWindow(arrow, windowName, toolTip);
+                Window newSideBarWindow = new ToggleHideableWindow(arrow, windowName, toolTip); //Create new sidebar window
                 newSideBarWindow.Show();
                 if (arrow == ">") //Если окно справа
                 {
@@ -162,7 +178,7 @@ namespace AudioPlayer
                     childWindowsLeft.Add(newSideBarWindow);
                 }
                 childWindows.Add(newSideBarWindow);
-                Window_LocationChanged(null, null);
+                Window_LocationChanged(null, null); //update position of all child side windows
             }
             catch (Exception ex)
             {
@@ -175,9 +191,9 @@ namespace AudioPlayer
         {
             try
             {
-                foreach(Window w in childWindows)
+                foreach(Window sideWindow in childWindows)
                 {
-                    ((ToggleHideableWindow)w).UpdatePosition();
+                    ((ToggleHideableWindow)sideWindow).UpdatePosition(); //updates position of both button and window attached to button
                 }
             }
             catch(Exception ex)
@@ -193,7 +209,6 @@ namespace AudioPlayer
             ((Image)sender).Width += 1;
             ((Image)sender).Height += 1;
         }
-
         private void ImageButton_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
             ((Image)sender).Width -= 1;
@@ -208,6 +223,7 @@ namespace AudioPlayer
             {
                 string extension = System.IO.Path.GetExtension(filePath);
                 //Debug.WriteLine("Расширение: " + extension);
+                //TODO: deal with this abysmal useless switch
                 switch (extension)
                 {
                     case ".mp3":
@@ -234,6 +250,7 @@ namespace AudioPlayer
             {
                 string extension = System.IO.Path.GetExtension(filePath);
                 //Debug.WriteLine("Расширение: " + extension);
+                //TODO: deal with this horrible switch too
                 switch (extension)
                 {
                     case ".mp3":
@@ -288,32 +305,22 @@ namespace AudioPlayer
         {
             try
             {
-                //Debug.WriteLine("Реакция на нажатие кнопки удаления");
                 if (tracksDataGrid.SelectedItems.Count == 0)
                 {
-                    //Debug.WriteLine("Не выбраны треки");
                     return;
                 }
-                //Debug.WriteLine("Треки выбраны");
                 string caption = IsMoreThanOneTrackSelected() ? "Удаление треков" : "Удаление трека";
                 string message = IsMoreThanOneTrackSelected() ? "Вы уверены, что хотите удалить выбранные треки?" : "Вы уверены, что хотите удалить выбранный трек?";
                 System.Windows.MessageBoxButton button = System.Windows.MessageBoxButton.YesNo;
                 if (System.Windows.MessageBox.Show(message, caption, button) == MessageBoxResult.Yes)
                 {
-                    //Debug.WriteLine("Начало удаления");
                     foreach(Track trackToDelete in tracksDataGrid.SelectedItems)
                     {
-                        //Debug.WriteLine("Удаление " + trackToDelete.name);
                         File.Delete(trackToDelete.filePath);
-                        //Debug.WriteLine("Файл удалён");
                         tracksList.Remove(trackToDelete);
-                        //Debug.WriteLine("Элемент удалён");
                     }
                     tracksDataGrid.ItemsSource = null;
-                    //Debug.WriteLine("Сорс = null");
                     tracksDataGrid.ItemsSource = tracksList;
-                    //Debug.WriteLine("Сорс = ЛИСТ");
-                    //RefreshDataGrid();
                 }
             }
             catch (Exception ex)
@@ -327,7 +334,6 @@ namespace AudioPlayer
         {
             if (tracksDataGrid.SelectedItems.Count > 1)
             {
-                //System.Windows.MessageBox.Show("Выбрано больше одного");
                 return true;
             }
             return false;
@@ -352,7 +358,7 @@ namespace AudioPlayer
                         {
                             File.Copy(file, workingFolderPath + @"\" + System.IO.Path.GetFileName(file));
                         }
-                        catch (Exception ex)
+                        catch (Exception ex) //continues through selected files if file cannot be copied
                         {
                             Debug.WriteLine("\nИСКЛЮЧЕНИЕ В ЦИКЛЕ: " + ex + "\n");
                             continue;
@@ -371,6 +377,7 @@ namespace AudioPlayer
 
         #region Управление воспроизведением
 
+        //Timer runs every 100ms, updates playfinder slider value
         public void Timer()
         {
             new Thread(() =>
@@ -378,30 +385,20 @@ namespace AudioPlayer
                 Thread.CurrentThread.IsBackground = true;
                 try
                 {
-                    while(outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing)
+                    while(outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing) //if song is playing
                     {
                         Dispatcher.Invoke((Action)delegate()
                         {
-                            playerControlSlider.Value = mainReader.CurrentTime.TotalSeconds;
+                            playerControlSlider.Value = mainReader.CurrentTime.TotalSeconds; //Update slider value
                         });
-                        Thread.Sleep(100);
+                        Thread.Sleep(100); 
                     }
-                    //if (mainReader != null && outputDevice != null)
-                    //{
-                    //    Dispatcher.Invoke((Action)delegate ()
-                    //    {
-                    //        Debug.WriteLine("\nСтатус трека: " + outputDevice.PlaybackState +
-                    //                "\nВремя: " + mainReader.CurrentTime.TotalSeconds +
-                    //                "\nЗначение слайдера: " + playerControlSlider.Value +
-                    //                "\nМаксимальное значение слайдера: " + playerControlSlider.Maximum);
-                    //    });
-                        
-                    //}
+                    //when song is stopped for some reason
                     Dispatcher.Invoke((Action)delegate ()
                     {
-                        if (playerControlSlider.Value == playerControlSlider.Maximum)
+                        if (playerControlSlider.Value == playerControlSlider.Maximum) //check if it's ended
                         {
-                            playerControlNext_MouseUp(null, null);
+                            playerControlNext_MouseUp(null, null); //play next song
                         }
                     });
                 }
@@ -417,20 +414,20 @@ namespace AudioPlayer
         {
             try
             {
-                if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing) return;
-                if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Paused)
+                if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing) return; //do nothing if song is already playing
+                if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Paused) //if song is paused - unpause and start timer again
                 {
                     outputDevice.Play();
                     Timer();
                     return;
                 }
 
-                if (IsMoreThanOneTrackSelected()) return;
+                if (IsMoreThanOneTrackSelected()) return; //if user tries to play multiple tracks, do nothing
 
-                outputDevice = new WaveOutEvent();
-                mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath);
-                equalizer = new Equalizer(mainReader, bands);
-                outputDevice.Init(equalizer);
+                outputDevice = new WaveOutEvent(); //set audio output
+                mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath); //set reader as stream provider
+                equalizer = new Equalizer(mainReader, bands); //create new equalizer with mainReader as stream provider and bands as equalizer data
+                outputDevice.Init(equalizer); //Initialize equalizer in audio output
                 outputDevice.Play();
                 Timer();
             }
@@ -461,7 +458,9 @@ namespace AudioPlayer
         {
             try
             {
-                switch (playbackOptionsArray[selectedPlaybackOptionIndex])
+                //check current playback option
+                //names of source images are used for improved readability
+                switch (playbackOptionsArray[selectedPlaybackOptionIndex]) 
                 {
                     case "loop.png":
                         loopPrevTrack();
@@ -489,7 +488,9 @@ namespace AudioPlayer
         {
             try
             {
-                switch(playbackOptionsArray[selectedPlaybackOptionIndex])
+                //check current playback option
+                //names of source images are used for improved readability
+                switch (playbackOptionsArray[selectedPlaybackOptionIndex])
                 {
                     case "loop.png":
                         loopNextTrack();
@@ -517,8 +518,8 @@ namespace AudioPlayer
             try
             {
                 Random rnd = new Random();
-                tracksDataGrid.SelectedIndex = rnd.Next(0, tracksDataGrid.Items.Count);
-                if (outputDevice != null) outputDevice.Stop();
+                tracksDataGrid.SelectedIndex = rnd.Next(0, tracksDataGrid.Items.Count); //Select random number >= 0 and < tracks count and select corresponding track
+                if (outputDevice != null) outputDevice.Stop(); //stop before playing next track
                 outputDevice = null;
                 mainReader = null;
                 playerControlPlay_MouseUp(null, null);
@@ -617,7 +618,7 @@ namespace AudioPlayer
             {
                 if (mainReader != null)
                 {
-                    mainReader.CurrentTime = TimeSpan.FromSeconds(((Slider)sender).Value);
+                    mainReader.CurrentTime = TimeSpan.FromSeconds(((Slider)sender).Value); //Set current playback time to value on slider
                 }
             }
             catch (Exception ex)
@@ -632,14 +633,14 @@ namespace AudioPlayer
             try
             {
                 playerControlSlider.Value = playerControlSlider.Minimum;
-                if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing)
+                if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing) //if song is playing start playing selected song
                 {
                     outputDevice.Stop();
                     outputDevice = null;
                     mainReader = null;
                     playerControlPlay_MouseUp(null, null);
                 }
-                else if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Paused)
+                else if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Paused) //if song is paused just reset reader and audio output
                 {
                     outputDevice = null;
                     mainReader = null;
@@ -654,8 +655,6 @@ namespace AudioPlayer
         //Изменение выбранного режима воспроизведения
         private void playerControlPlaybackMode_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            //Debug.WriteLine(((Image)sender).Source.ToString());
-            //testButton.Content = ((Image)sender).Source.ToString();
             if (selectedPlaybackOptionIndex + 1 >= playbackOptionsArray.Length)
             {
                 selectedPlaybackOptionIndex = 0;
@@ -669,6 +668,7 @@ namespace AudioPlayer
 
         #endregion
 
+        //test button
         private void testButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -686,6 +686,8 @@ namespace AudioPlayer
         }
     }
 
+    //Track class, stores info about track
+    //TODO: move duration in string format and TimeSpan format calculation here from main class
     public class Track
     {
         public string name { get; set; }

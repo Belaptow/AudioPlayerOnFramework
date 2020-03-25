@@ -4,10 +4,6 @@ using NAudio.Wave;
 namespace AudioPlayer
 {
     /// <summary>
-    /// Basic example of a multi-band eq
-    /// uses the same settings for both channels in stereo audio
-    /// Call Update after you've updated the bands
-    /// Potentially to be added to NAudio in a future version
     /// </summary>
     public class Equalizer : ISampleProvider
     {
