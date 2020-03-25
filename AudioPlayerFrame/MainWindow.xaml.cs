@@ -32,7 +32,7 @@ namespace AudioPlayer
     public partial class MainWindow : Window
     {
         #region Переменные
-        Visualizer visualizerWindow;
+        public static Visualizer visualizerWindow;
 
         public List<Track> tracksList = new List<Track>(); //List of tracks in datagrid
 
