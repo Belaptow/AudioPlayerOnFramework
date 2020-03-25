@@ -179,5 +179,28 @@
   <ItemGroup>
     <Resource Include="EqualizerFolder\save.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\audiocheck.net_sin_1000Hz_-3dBFS_3s.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="TestSounds\audiocheck.net_sin_1000Hz_-3dBFS_3s.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\audiocheck.net_sin_600Hz_-3dBFS_3s.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\audiocheck.net_sin_400Hz_-3dBFS_3s.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\audiocheck.net_sin_200Hz_-3dBFS_3s.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\audiocheck.net_sin_800Hz_-3dBFS_3s.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\audiocheck.net_sin_1200Hz_-3dBFS_3s.wav" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AudioPlayer"
         xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
-        Title="Visualizer" Height="150" Width="480"
+        Title="Visualizer" Height="170" Width="480"
         ResizeMode="NoResize"
         WindowStyle="None"
         Background="DarkGray"
@@ -37,6 +37,35 @@
             </oxy:Plot.Axes>
             
         </oxy:Plot>
-        <ContentPresenter Name="contentPresenterSpectrum"/>
+        <ContentPresenter Name="contentPresenterSpectrum" Margin="0, 0, 0, 25"/>
+        <Border Height="1" VerticalAlignment="Bottom" 
+                Margin="{Binding ElementName=contentPresenterSpectrum, Path=Margin}"/>
+        <StackPanel Name="playerControlsButtonsStack"
+                        FlowDirection="LeftToRight" 
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom"
+                        Margin="5, 0, 0, 5"
+                        Height="25">
+            <Image Name="playerControlPlay"
+                   Source="../Icons/play.png" 
+                   Width="20"
+                   Height="20"
+                   Margin="5, 0, 5, 0"
+                   MouseEnter="ImageButton_MouseEnter" 
+                   MouseLeave="ImageButton_MouseLeave"
+                   MouseUp="playerControlPlay_MouseUp"
+                   ToolTip="Воспроизвести тестовый звук"/>
+            <Image Name="playerControlStop"
+                   Source="../Icons/stop.png" 
+                   Width="20"
+                   Height="20"
+                   Margin="5, 0, 5, 0"
+                   MouseEnter="ImageButton_MouseEnter" 
+                   MouseLeave="ImageButton_MouseLeave"
+                   MouseUp="playerControlStop_MouseUp"
+                   ToolTip="Остановить тестовый звук"/>
+        </StackPanel>
+        
     </Grid>
 </Window>

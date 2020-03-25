@@ -59,5 +59,59 @@ namespace AudioPlayer.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream audiocheck_net_sin_1000Hz__3dBFS_3s {
+            get {
+                return ResourceManager.GetStream("audiocheck_net_sin_1000Hz__3dBFS_3s", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream audiocheck_net_sin_1200Hz__3dBFS_3s {
+            get {
+                return ResourceManager.GetStream("audiocheck_net_sin_1200Hz__3dBFS_3s", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream audiocheck_net_sin_200Hz__3dBFS_3s {
+            get {
+                return ResourceManager.GetStream("audiocheck_net_sin_200Hz__3dBFS_3s", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream audiocheck_net_sin_400Hz__3dBFS_3s {
+            get {
+                return ResourceManager.GetStream("audiocheck_net_sin_400Hz__3dBFS_3s", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream audiocheck_net_sin_600Hz__3dBFS_3s {
+            get {
+                return ResourceManager.GetStream("audiocheck_net_sin_600Hz__3dBFS_3s", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream audiocheck_net_sin_800Hz__3dBFS_3s {
+            get {
+                return ResourceManager.GetStream("audiocheck_net_sin_800Hz__3dBFS_3s", resourceCulture);
+            }
+        }
     }
 }

@@ -41,16 +41,16 @@ namespace AudioPlayer
             this.xScale = this.ActualWidth / (bins / binsPerPoint);
         }
 
-        private const int binsPerPoint = 2; // reduce the number of points we plot for a less jagged line?
+        private const int binsPerPoint = 3; // reduce the number of points we plot for a less jagged line?
         private int updateCount;
 
         public void Update(Complex[] fftResults)
         {
             // no need to repaint too many frames per second
-            //if (updateCount++ % 2 == 0)
-            //{
-            //    return;
-            //}
+            if (updateCount++ % 2 == 0)
+            {
+                return;
+            }
 
             if (fftResults.Length / 2 != bins)
             {

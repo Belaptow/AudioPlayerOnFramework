@@ -48,7 +48,8 @@ namespace AudioPlayer
         public string[] allowedExtensions = new string[] { ".wav", ".mp3" }; //filter of allowed extensions
 
         public static AudioFileReader mainReader; //main audio reader and stream provider
-        public WaveOutEvent outputDevice; //audio output
+        public static WaveOutEvent outputDevice; //audio output
+        public static WaveFileReader testSoundsReader;
 
         //Settings file to keep data between launches
         //Stores:
@@ -388,7 +389,7 @@ namespace AudioPlayer
 
         #region Управление воспроизведением
 
-        //Timer runs every 100ms, updates playfinder slider value
+        //Timer runs every 10ms, updates playfinder slider value
         public void Timer()
         {
             new Thread(() =>
@@ -696,11 +697,28 @@ namespace AudioPlayer
         {
             try
             {
-                mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath);
-                equalizer = new SampleAggregator(mainReader, bands);
-                outputDevice = new WaveOutEvent();
-                outputDevice.Init(equalizer);
-                outputDevice.Play();
+                new Task(() =>
+                {
+                    WaveFileReader ws = new WaveFileReader(Properties.Resources.audiocheck_net_sin_1000Hz__3dBFS_3s);
+                    //WaveOutEvent output = new WaveOutEvent();
+                    //output.Init(ws);
+                    //output.Play();
+                    outputDevice = new WaveOutEvent();
+                    equalizer = new SampleAggregator(ws.ToSampleProvider(), bands); //create new equalizer with mainReader as stream provider and bands as equalizer data
+                    //equalizer.NotificationCount = MainWindow.mainReader.WaveFormat.SampleRate / 100;
+                    equalizer.NotificationCount = ws.WaveFormat.SampleRate / 100;
+                    equalizer.PerformFFT = true;
+                    equalizer.FftCalculated += (s, a) => visualizerWindow.FftCalculatedFired(s, a);
+                    outputDevice.Init(equalizer); //Initialize equalizer in audio output
+                    outputDevice.Play();
+                    while (true)
+                    {
+                        ws.CurrentTime = TimeSpan.FromSeconds(ws.TotalTime.TotalSeconds / 2);
+                        Thread.Sleep(100);
+                    }
+                }).Start();
+                
+                  
             }
             catch(Exception ex)
             {
