@@ -513,7 +513,8 @@
                 VerticalAlignment="Bottom"
                 Width="20"
                 Height="20"
-                Click="testButtonChart_Click"/>
+                Click="testButtonChart_Click"
+                Visibility="Hidden"/>
 
         <ComboBox Name="curveChoiceCombo" 
                   VerticalAlignment="Bottom" HorizontalAlignment="Center"

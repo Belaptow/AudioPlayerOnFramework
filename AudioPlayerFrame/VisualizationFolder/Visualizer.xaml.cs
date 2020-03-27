@@ -48,6 +48,12 @@ namespace AudioPlayer
         {
             InitializeComponent();
             contentPresenterSpectrum.Content = spectrumAnalyser;
+#if RELEASE
+            playerControlsButtonsStack.Visibility = Visibility.Hidden;
+            separatorBorder.Visibility = Visibility.Hidden;
+            this.Height = 120;
+            contentPresenterSpectrum.Margin = new Thickness(0, 0, 0, 0);
+#endif
         }
 
         public void Timer()
@@ -104,7 +110,7 @@ namespace AudioPlayer
             }
         }
 
-        #region Отображение кнопок-картинок
+#region Отображение кнопок-картинок
         //Увеличение/уменьшение размера изображения при наведении мышью
         private void ImageButton_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
@@ -116,7 +122,7 @@ namespace AudioPlayer
             ((Image)sender).Width -= 1;
             ((Image)sender).Height -= 1;
         }
-        #endregion
+#endregion
 
         //Остановка тестового звука
         private void playerControlStop_MouseUp(object sender, MouseButtonEventArgs e)

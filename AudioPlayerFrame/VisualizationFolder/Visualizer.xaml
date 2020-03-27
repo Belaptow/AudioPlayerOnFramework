@@ -38,7 +38,8 @@
             
         </oxy:Plot>
         <ContentPresenter Name="contentPresenterSpectrum" Margin="0, 0, 0, 30"/>
-        <Border Height="1" 
+        <Border Name="separatorBorder"
+                Height="1" 
                 VerticalAlignment="Bottom" 
                 Margin="{Binding ElementName=contentPresenterSpectrum, Path=Margin}"
                 Background="LightGray"/>
