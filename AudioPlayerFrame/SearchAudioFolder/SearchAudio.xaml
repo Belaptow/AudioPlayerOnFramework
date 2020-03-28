@@ -40,7 +40,17 @@
                 VerticalAlignment="Bottom"
                 Panel.ZIndex="10"
                 Click="testButton_Click"/>
-        
+
+        <ProgressBar Name="searchProgress"
+                     Width="200"
+                     Height="20"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Top"
+                     Panel.ZIndex="10"
+                     Margin="5, 30, 0, 0"
+                     Visibility="Hidden"
+                     Maximum="100"/>
+
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       Margin="5, 30, 5, 5">
 

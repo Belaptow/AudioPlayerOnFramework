@@ -65,41 +65,64 @@ namespace AudioPlayer
 
                 if (document.DocumentNode.SelectNodes("//div[@class='musicset-track-list__items']/div") == null)
                 {
-                    noResults.Visibility = Visibility.Visible;
+                    noResults.Visibility = Visibility.Hidden;
                     noResults.Text = "По запросу " + searchInput.Text + " ничего не найдено";
                     return;
                 }
 
-                foreach (HtmlNode node in document.DocumentNode.SelectNodes("//div[@class='musicset-track-list__items']/div"))
+                searchProgress.Visibility = Visibility.Visible;
+                searchProgress.Value = 0;
+                searchProgress.Maximum = document.DocumentNode.SelectNodes("//div[@class='musicset-track-list__items']/div").Count;
+
+                new Task(() =>
                 {
-                    if (node.HasClass("track-is-banned")) continue;
+                    foreach (HtmlNode node in document.DocumentNode.SelectNodes("//div[@class='musicset-track-list__items']/div"))
+                    {
+                        if (node.HasClass("track-is-banned")) continue;
 
-                    string fullName = node.SelectSingleNode(".//div[@class='musicset-track__fullname']")
-                                          .GetAttributeValue("title", "")
-                                          .Replace(@"&ndash;", "-")
-                                          .Replace(@"&#39;", @"'")
-                                          .Replace(@"&amp;", @"&");
+                        string fullName = node.SelectSingleNode(".//div[@class='musicset-track__fullname']")
+                                              .GetAttributeValue("title", "")
+                                              .Replace(@"&ndash;", "-")
+                                              .Replace(@"&#39;", @"'")
+                                              .Replace(@"&amp;", @"&");
 
-                    string duration = node.SelectSingleNode(".//div[@class='musicset-track__duration']").InnerText;
+                        string duration = node.SelectSingleNode(".//div[@class='musicset-track__duration']").InnerText;
 
-                    string downloadUrl = "";
-                    HtmlNode linkNode = node.SelectSingleNode(".//div[@class='musicset-track__download track-geo']")
-                                            .SelectSingleNode(".//a");
-                    if (linkNode != null)  downloadUrl = linkNode.GetAttributeValue("href", "");
+                        string downloadUrl = "";
+                        HtmlNode linkNode = node.SelectSingleNode(".//div[@class='musicset-track__download track-geo']")
+                                                .SelectSingleNode(".//a");
+                        if (linkNode != null) downloadUrl = linkNode.GetAttributeValue("href", "");
 
-                    string json = GET(site + node.GetAttributeValue("data-url", ""), "");
-                    Dictionary<string, string> jsonDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                    string urlToPlay = jsonDict["url"];
+                        string json = GET(site + node.GetAttributeValue("data-url", ""), "");
+                        Dictionary<string, string> jsonDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                        string urlToPlay = jsonDict["url"];
 
-                    tracksList.Add(new SearchResultTrack(fullName, duration, urlToPlay, downloadUrl));
-                }
+                        tracksList.Add(new SearchResultTrack(fullName, duration, urlToPlay, downloadUrl));
 
-                searchResults.ItemsSource = tracksList;
+                        Dispatcher.Invoke((Action)delegate ()
+                        {
+                            searchProgress.Value++;
+                        });
+                    }
+                    Dispatcher.Invoke((Action)delegate ()
+                    {
+                        searchResults.ItemsSource = tracksList;
+                        searchProgress.Visibility = Visibility.Hidden;
+                    });
+                }).Start();
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("\n" + ex + "\n");
             }
+        }
+
+        public void AddValueToProgressBar(double value)
+        {
+            Dispatcher.Invoke((Action)delegate ()
+            {
+                searchProgress.Value += value;
+            });
         }
 
         public string GET(string Url, string Data)
@@ -133,12 +156,15 @@ namespace AudioPlayer
         {
             try
             {
-                if (MainWindow.outputDevice.PlaybackState == PlaybackState.Playing || MainWindow.outputDevice.PlaybackState == PlaybackState.Paused) MainWindow.outputDevice.Stop();
+                if (MainWindow.outputDevice.PlaybackState == PlaybackState.Playing || MainWindow.outputDevice.PlaybackState == PlaybackState.Paused)
+                {
+                    MainWindow.outputDevice.PlaybackStopped -= OutputDevice_PlaybackStopped;
+                    MainWindow.outputDevice.Stop();
+                }
                 webReader = new MediaFoundationReader(url);
-                //((MainWindow)Owner)
                 MainWindow.outputDevice.Init(webReader);
-                MainWindow.outputDevice.Play();
                 MainWindow.outputDevice.PlaybackStopped += OutputDevice_PlaybackStopped;
+                MainWindow.outputDevice.Play();
                 playing = true;
             }
             catch (Exception ex)
@@ -150,13 +176,13 @@ namespace AudioPlayer
         private void OutputDevice_PlaybackStopped(object sender, StoppedEventArgs e)
         {
             playing = false;
-            //throw new NotImplementedException();
         }
 
         private void StopButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
             try
             {
+                Debug.WriteLine("stop pressed");
                 if (playing)
                 {
                     MainWindow.outputDevice.Stop();
