@@ -35,6 +35,7 @@ namespace AudioPlayer
         HtmlDocument document = new HtmlDocument();
         public MediaFoundationReader webReader;
         List<SearchResultTrack> tracksList = new List<SearchResultTrack>();
+        SearchResultTrack currentTrack;
 
         public SearchAudio()
         {
@@ -42,7 +43,7 @@ namespace AudioPlayer
             eventHandlers.Add("zaycev.net", searchCommenceZaycev_MouseUp);
             eventHandlers.Add("mp3-tut.info", searchCommencemp3Tut_MouseUp);
             sitesChoice.ItemsSource = eventHandlers;
-            sitesChoice.SelectedIndex = 0;
+            sitesChoice.SelectedIndex = 1;
         }
 
         #region Отображение кнопок-картинок
@@ -92,11 +93,8 @@ namespace AudioPlayer
                     {
                         if (node.HasClass("track-is-banned")) continue;
 
-                        string fullName = node.SelectSingleNode(".//div[@class='musicset-track__fullname']")
-                                              .GetAttributeValue("title", "")
-                                              .Replace(@"&ndash;", "-")
-                                              .Replace(@"&#39;", @"'")
-                                              .Replace(@"&amp;", @"&");
+                        string fullName = WebUtility.HtmlDecode(node.SelectSingleNode(".//div[@class='musicset-track__fullname']")
+                                                                    .GetAttributeValue("title", ""));
 
                         string duration = node.SelectSingleNode(".//div[@class='musicset-track__duration']").InnerText;
 
@@ -109,10 +107,9 @@ namespace AudioPlayer
                         Dictionary<string, string> jsonDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
                         string urlToPlay = jsonDict["url"];
 
-                        tracksList.Add(new SearchResultTrack(fullName, duration, urlToPlay, downloadUrl));
-
                         Dispatcher.Invoke((Action)delegate ()
                         {
+                            tracksList.Add(new SearchResultTrack(fullName, duration, urlToPlay, downloadUrl, (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA9A9A9"))));
                             searchProgress.Value++;
                         });
                     }
@@ -161,11 +158,9 @@ namespace AudioPlayer
                 {
                     foreach (HtmlNode node in document.DocumentNode.SelectNodes("//div[@class='audio-list-entry-inner']"))
                     {
-                        string name = node.SelectSingleNode(".//button[@class='play-button']")
-                                          .GetAttributeValue("data-title", "")
-                                          .Replace(@"&ndash;", "-")
-                                          .Replace(@"&#39;", @"'")
-                                          .Replace(@"&amp;", @"&");
+                        string name = WebUtility.HtmlDecode(node.SelectSingleNode(".//button[@class='play-button']")
+                                                                .GetAttributeValue("data-title", ""));
+
                         if (name == "" || name == null) continue;
 
                         string duration = node.SelectSingleNode(".//div[@class='audio-duration']").InnerText;
@@ -175,10 +170,9 @@ namespace AudioPlayer
 
                         string downloadUrl = url + @"&download=1";
 
-                        tracksList.Add(new SearchResultTrack(name, duration, url, downloadUrl));
-
                         Dispatcher.Invoke((Action)delegate ()
                         {
+                            tracksList.Add(new SearchResultTrack(name, duration, url, downloadUrl, (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA9A9A9"))));
                             searchProgress.Value++;
                         });
                     }
@@ -233,7 +227,10 @@ namespace AudioPlayer
         {
             try
             {
+                
                 FrameworkElement fe = sender as FrameworkElement;
+                ((SearchResultTrack)fe.DataContext).brush = Brushes.Red;
+                currentTrack = ((SearchResultTrack)fe.DataContext);
                 StartTrack(((SearchResultTrack)fe.DataContext).url);
             }
             catch (Exception ex)
@@ -248,11 +245,17 @@ namespace AudioPlayer
             {
                 if (MainWindow.outputDevice.PlaybackState == PlaybackState.Playing || MainWindow.outputDevice.PlaybackState == PlaybackState.Paused)
                 {
+                    currentTrack.brush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA9A9A9")); //darkgray
                     MainWindow.outputDevice.PlaybackStopped -= OutputDevice_PlaybackStopped;
                     MainWindow.outputDevice.Stop();
                 }
+                currentTrack.brush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFC0C0C0")); //silver
                 webReader = new MediaFoundationReader(url);
-                MainWindow.outputDevice.Init(webReader);
+                MainWindow.equalizer = new SampleAggregator(webReader.ToSampleProvider(), MainWindow.bands);
+                MainWindow.equalizer.NotificationCount = webReader.WaveFormat.SampleRate / 100;
+                MainWindow.equalizer.PerformFFT = true;
+                MainWindow.equalizer.FftCalculated += (s, a) => MainWindow.visualizerWindow.FftCalculatedFired(s, a);
+                MainWindow.outputDevice.Init(MainWindow.equalizer);
                 MainWindow.outputDevice.PlaybackStopped += OutputDevice_PlaybackStopped;
                 MainWindow.outputDevice.Play();
                 playing = true;
@@ -265,6 +268,7 @@ namespace AudioPlayer
 
         private void OutputDevice_PlaybackStopped(object sender, StoppedEventArgs e)
         {
+            currentTrack.brush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA9A9A9")); //darkgray
             playing = false;
         }
 
@@ -328,7 +332,7 @@ namespace AudioPlayer
 
                         string downloadUrl = url + @"&download=1";
 
-                        tracksList.Add(new SearchResultTrack(name, duration, url, downloadUrl));
+                        //tracksList.Add(new SearchResultTrack(name, duration, url, downloadUrl));
 
                         Dispatcher.Invoke((Action)delegate ()
                         {
@@ -412,6 +416,7 @@ namespace AudioPlayer
 
     public class SearchResultTrack
     {
+        public SolidColorBrush brush { get; set; }
         public string name { get; set; }
         public string duration { get; set; }
         public string url { get; set; }
@@ -419,7 +424,7 @@ namespace AudioPlayer
         public bool canDownload { get; set; }
         public string toolTip { get; set; }
         public Visibility visibility { get; set; }
-        public SearchResultTrack(string name, string duration, string url, string downloadUrl)
+        public SearchResultTrack(string name, string duration, string url, string downloadUrl, SolidColorBrush brush)
         {
             this.name = name;
             this.duration = duration;
@@ -428,6 +433,7 @@ namespace AudioPlayer
             this.canDownload = downloadUrl == "" ? false : true;
             this.toolTip = this.canDownload ? "Загрузка" : "Загрузка недоступна";
             this.visibility = this.canDownload ? Visibility.Visible : Visibility.Hidden;
+            this.brush = brush;
         }
     }
 }

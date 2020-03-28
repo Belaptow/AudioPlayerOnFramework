@@ -63,7 +63,7 @@
                       Background="DarkGray">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid>
+                        <Grid Background="{Binding Path=brush}">
                             <TextBlock Text="{Binding Path=name}"
                                    Height="20"
                                    Margin="2, 3, 89, 0"
