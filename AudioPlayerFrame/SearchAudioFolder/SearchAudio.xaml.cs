@@ -26,15 +26,23 @@ namespace AudioPlayer
     public partial class SearchAudio : Window
     {
         public static bool playing = false;
-        string siteSearch = "https://zaycev.net/search.html?query_search=";
-        string site = "https://zaycev.net";
+        //string siteSearch = "https://zaycev.net/search.html?query_search=";
+        //string site = "https://zaycev.net";
+        string siteSearch = "https://wwf.mp3-tut.info/search?query=";
+        Dictionary<string, MouseButtonEventHandler> eventHandlers = new Dictionary<string, MouseButtonEventHandler>();
+        string site = "https://wwf.mp3-tut.info";
         HtmlWeb webClient = new HtmlWeb();
         HtmlDocument document = new HtmlDocument();
         public MediaFoundationReader webReader;
         List<SearchResultTrack> tracksList = new List<SearchResultTrack>();
+
         public SearchAudio()
         {
             InitializeComponent();
+            eventHandlers.Add("zaycev.net", searchCommenceZaycev_MouseUp);
+            eventHandlers.Add("mp3-tut.info", searchCommencemp3Tut_MouseUp);
+            sitesChoice.ItemsSource = eventHandlers;
+            sitesChoice.SelectedIndex = 0;
         }
 
         #region Отображение кнопок-картинок
@@ -51,7 +59,7 @@ namespace AudioPlayer
         }
         #endregion
 
-        private void searchCommence_MouseUp(object sender, MouseButtonEventArgs e)
+        private void searchCommenceZaycev_MouseUp(object sender, MouseButtonEventArgs e)
         {
             try
             {
@@ -60,6 +68,9 @@ namespace AudioPlayer
                 noResults.Visibility = Visibility.Hidden;
                 tracksList.Clear();
                 searchResults.ItemsSource = null;
+
+                site = "https://zaycev.net";
+                siteSearch = "https://zaycev.net/search.html?query_search=";
 
                 string query = searchInput.Text.Replace(' ', '+');
                 document = webClient.Load(siteSearch + query);
@@ -111,6 +122,84 @@ namespace AudioPlayer
                         searchProgress.Visibility = Visibility.Hidden;
                     });
                 }).Start();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        private void searchCommencemp3Tut_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (searchInput.Text == null || searchInput.Text == "") return;
+
+                siteSearch = "https://wwf.mp3-tut.info/search?query=";
+                site = "https://wwf.mp3-tut.info";
+
+                noResults.Visibility = Visibility.Hidden;
+                tracksList.Clear();
+                searchResults.ItemsSource = null;
+
+                string query = searchInput.Text;
+
+                document = webClient.Load(siteSearch + query);
+
+                if (document.DocumentNode.SelectNodes("//div[@class='audio-list-entry-inner']") == null)
+                {
+                    noResults.Visibility = Visibility.Visible;
+                    noResults.Text = "По запросу " + searchInput.Text + " ничего не найдено";
+                    return;
+                }
+
+                searchProgress.Visibility = Visibility.Visible;
+                searchProgress.Value = 0;
+                searchProgress.Maximum = document.DocumentNode.SelectNodes("//div[@class='audio-list-entry-inner']").Count;
+
+                new Task(() =>
+                {
+                    foreach (HtmlNode node in document.DocumentNode.SelectNodes("//div[@class='audio-list-entry-inner']"))
+                    {
+                        string name = node.SelectSingleNode(".//button[@class='play-button']")
+                                          .GetAttributeValue("data-title", "")
+                                          .Replace(@"&ndash;", "-")
+                                          .Replace(@"&#39;", @"'")
+                                          .Replace(@"&amp;", @"&");
+                        if (name == "" || name == null) continue;
+
+                        string duration = node.SelectSingleNode(".//div[@class='audio-duration']").InnerText;
+
+                        string url = node.SelectSingleNode(".//button[@class='play-button']").GetAttributeValue("data-audiofile", "");
+                        if (url == "" || url == null) continue;
+
+                        string downloadUrl = url + @"&download=1";
+
+                        tracksList.Add(new SearchResultTrack(name, duration, url, downloadUrl));
+
+                        Dispatcher.Invoke((Action)delegate ()
+                        {
+                            searchProgress.Value++;
+                        });
+                    }
+                    Dispatcher.Invoke((Action)delegate ()
+                    {
+                        searchResults.ItemsSource = tracksList;
+                        searchProgress.Visibility = Visibility.Hidden;
+                    });
+                }).Start();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        private void searchCommence_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                eventHandlers[((KeyValuePair<string, MouseButtonEventHandler>)sitesChoice.SelectedItem).Key](null, null);
             }
             catch (Exception ex)
             {
@@ -183,7 +272,6 @@ namespace AudioPlayer
         {
             try
             {
-                Debug.WriteLine("stop pressed");
                 if (playing)
                 {
                     MainWindow.outputDevice.Stop();
@@ -200,8 +288,59 @@ namespace AudioPlayer
         {
             try
             {
-                
-                
+                if (searchInput.Text == null || searchInput.Text == "") return;
+
+                noResults.Visibility = Visibility.Hidden;
+                tracksList.Clear();
+                searchResults.ItemsSource = null;
+
+                string query = searchInput.Text;
+
+                document = webClient.Load(siteSearch + query);
+
+                if (document.DocumentNode.SelectNodes("//div[@class='audio-list-entry-inner']") == null)
+                {
+                    noResults.Visibility = Visibility.Visible;
+                    noResults.Text = "По запросу " + searchInput.Text + " ничего не найдено";
+                    return;
+                }
+
+                searchProgress.Visibility = Visibility.Visible;
+                searchProgress.Value = 0;
+                searchProgress.Maximum = document.DocumentNode.SelectNodes("//div[@class='audio-list-entry-inner']").Count;
+                Debug.WriteLine(searchProgress.Maximum);
+
+                new Task(() =>
+                {
+                    foreach (HtmlNode node in document.DocumentNode.SelectNodes("//div[@class='audio-list-entry-inner']"))
+                    {
+                        string name = node.SelectSingleNode(".//button[@class='play-button']")
+                                          .GetAttributeValue("data-title", "")
+                                          .Replace(@"&ndash;", "-")
+                                          .Replace(@"&#39;", @"'")
+                                          .Replace(@"&amp;", @"&");
+                        if (name == "" || name == null) continue;
+
+                        string duration = node.SelectSingleNode(".//div[@class='audio-duration']").InnerText;
+
+                        string url = node.SelectSingleNode(".//button[@class='play-button']").GetAttributeValue("data-audiofile", "");
+                        if (url == "" || url == null) continue;
+
+                        string downloadUrl = url + @"&download=1";
+
+                        tracksList.Add(new SearchResultTrack(name, duration, url, downloadUrl));
+
+                        Dispatcher.Invoke((Action)delegate ()
+                        {
+                            searchProgress.Value++;
+                        });
+                    }
+                    Dispatcher.Invoke((Action)delegate ()
+                    {
+                        searchResults.ItemsSource = tracksList;
+                        searchProgress.Visibility = Visibility.Hidden;
+                    });
+                }).Start();
             }
             catch (Exception ex)
             {
@@ -211,7 +350,7 @@ namespace AudioPlayer
 
         private void searchInput_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter) searchCommence_MouseUp(null, null);
+            if (e.Key == Key.Enter) eventHandlers[((KeyValuePair<string, MouseButtonEventHandler>)sitesChoice.SelectedItem).Key](null, null);
         }
 
         private void SaveButton_MouseUp(object sender, MouseButtonEventArgs e)
@@ -226,6 +365,7 @@ namespace AudioPlayer
             {
                 Debug.WriteLine(url);
                 Uri uri = new Uri(url);
+                searchProgress.Visibility = Visibility.Visible;
                 WebClient client = new WebClient();
                 searchProgress.Maximum = 100;
                 searchProgress.Value = 0;
@@ -262,6 +402,11 @@ namespace AudioPlayer
                 searchProgress.Value = percentage;
             });
             //throw new NotImplementedException();
+        }
+
+        private void sitesChoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            eventHandlers[((KeyValuePair<string, MouseButtonEventHandler>)sitesChoice.SelectedItem).Key](null, null);
         }
     }
 

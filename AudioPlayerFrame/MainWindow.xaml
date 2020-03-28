@@ -14,6 +14,67 @@
     <Window.Resources>
         <local:TimespanToDoubleConverter x:Key="ttdc" />
         <local:DoubleSecondsToTimespanStringConverter x:Key="dsttsc" />
+        <Style x:Key="DataGridTestStyle" TargetType="{x:Type DataGrid}">
+            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderBrush" Value="#FF688CAF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowDetailsVisibilityMode" Value="VisibleWhenSelected"/>
+            <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+            <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+            <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGrid}">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="DG_ScrollViewer" Focusable="false">
+                                <ScrollViewer.Template>
+                                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Button Command="{x:Static DataGrid.SelectAllCommand}" 
+                                                    Focusable="false" 
+                                                    Style="{DynamicResource {ComponentResourceKey ResourceId=DataGridSelectAllButtonStyle, TypeInTargetAssembly={x:Type DataGrid}}}" 
+                                                    Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.All}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" 
+                                                    Width="{Binding CellsPanelHorizontalOffset, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                            <DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter" Grid.Column="1" Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Column}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" Grid.ColumnSpan="2" Grid.Row="1"/>
+                                            <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Column="2" Maximum="{TemplateBinding ScrollableHeight}" Orientation="Vertical" Grid.Row="1" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}"/>
+                                            <Grid Grid.Column="1" Grid.Row="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="{Binding NonFrozenColumnsViewportHorizontalOffset, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <ScrollBar x:Name="PART_HorizontalScrollBar" Grid.Column="1" Maximum="{TemplateBinding ScrollableWidth}" Orientation="Horizontal" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}"/>
+                                            </Grid>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </ScrollViewer.Template>
+                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsGrouping" Value="true"/>
+                        <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Grid>
         <Button Name="testButton"
@@ -31,7 +92,7 @@
                     Height="22"
                     Orientation="Horizontal"
                     Margin="5, 5, 0, 0">
-            
+
             <Image Name="contentControlSelectWorkingFolder" 
                    Source="Icons/open-folder.png"
                    Height="20"
@@ -41,7 +102,7 @@
                    MouseLeave="ImageButton_MouseLeave"
                    MouseUp="contentControlSelectWorkingFolder_MouseUp"
                    ToolTip="Выбор папки аудиозаписей"/>
-            
+
             <Image Name="contentControlDeleteTrack" 
                    Source="Icons/bin.png"
                    Height="20"
@@ -51,7 +112,7 @@
                    MouseLeave="ImageButton_MouseLeave"
                    ToolTip="Удаление выбранного трека"
                    MouseUp="contentControlDeleteTrack_MouseUp"/>
-            
+
             <Image Name="contentControlAddTrack" 
                    Source="Icons/plus.png"
                    Height="20"
@@ -61,7 +122,7 @@
                    MouseLeave="ImageButton_MouseLeave"
                    ToolTip="Добавление треков"
                    MouseUp="contentControlAddTrack_MouseUp"/>
-            
+
             <Image Name="contentControlRefreshGrid" 
                    Source="Icons/refresh.png"
                    Height="20"
@@ -72,9 +133,12 @@
                    MouseUp="contentControlRefreshGrid_MouseUp"
                    ToolTip="Обновление списка треков"/>
         </StackPanel>
-
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      Margin="0, 30, 0, 50"
+                      Background="DarkGray"
+                      Name="dataGridScrollView">
         <DataGrid Name="tracksDataGrid"
-                  Margin="0, 30, 0, 0"
+                  Margin="0, 0, 0, 0"
                   Background="DarkGray"
                   ItemsSource="{Binding}"
                   VerticalAlignment="Top"
@@ -85,12 +149,26 @@
                   CanUserReorderColumns="False"
                   AutoGenerateColumns="False"
                   HorizontalAlignment="Stretch"
-                  RowHeaderWidth="0" SelectionChanged="tracksDataGrid_SelectionChanged">
+                  RowHeaderWidth="0" SelectionChanged="tracksDataGrid_SelectionChanged" 
+                  Style="{DynamicResource DataGridTestStyle}"
+                  BorderThickness="0, 0, 0, 0"
+                  HorizontalScrollBarVisibility="Disabled"
+                  GridLinesVisibility="Vertical">
+
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Margin" Value="0,0,-10,0" />
+                </Style>
+            </DataGrid.CellStyle>
 
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Setter Property="Background"
                             Value="DarkGray"/>
+                    <Setter Property="Margin"
+                            Value="0, 0, 0, 3" />
+                    <Setter Property="BorderThickness"
+                            Value="0, 0, 0, 0" />
                 </Style>
             </DataGrid.RowStyle>
 
@@ -106,14 +184,14 @@
                             Value="Black"/>
                 </Style>
             </DataGrid.ColumnHeaderStyle>
-            
+
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Название"
                                     Binding="{Binding Path=name}"
                                     Width="300"
                                     IsReadOnly="True">
                 </DataGridTextColumn>
-                
+
                 <DataGridTextColumn Header="Время" 
                                     Binding="{Binding Path=duration}"
                                     IsReadOnly="True"
@@ -122,17 +200,55 @@
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="HorizontalAlignment" Value="Center" />
-                        </Style>
+                                <Setter Property="TextAlignment" Value="Center" />
+                            </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
 
+        </ScrollViewer>
+
+        <ScrollViewer Name="itemsControlScrollView"
+                      Margin="0, 60, 0, 50"
+                      Background="DarkGray"
+                      VerticalScrollBarVisibility="Auto"
+                      Visibility="Hidden">
+            <ItemsControl Name="tracksItemsControl">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="5, 5, 5, 5">
+                            <Grid>
+                                <TextBlock Text="{Binding Path=name}"
+                                           Width="300"
+                                           Height="20"/>
+                                <TextBlock Text="{Binding Path=duration}" 
+                                           HorizontalAlignment="Right"
+                                           Height="20"
+                                           Width="50"
+                                           Margin="0, 0, 0, 0"
+                                           TextAlignment="Center"/>
+                                <CheckBox />
+                            </Grid>
+                            <Image Source="Icons/bin.png"
+                                   Height="20"
+                                   Width="20"
+                                   Margin="5, 0, 5, 0" 
+                                   MouseEnter="ImageButton_MouseEnter" 
+                                   MouseLeave="ImageButton_MouseLeave"
+                                   ToolTip="Удаление выбранного трека"
+                                   MouseUp="deleteTrack_MouseUp"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
         <Grid Name="playerControlsGrid"
               VerticalAlignment="Bottom"
               HorizontalAlignment="Stretch"
               Height="50">
-            
+
             <Slider Name="playerControlSlider"
                     Value="0"
                     Margin="10, 0, 10, 0"
@@ -151,7 +267,7 @@
                                      Color="Silver" />
                 </Slider.Resources>
             </Slider>
-            
+
             <TextBlock Name="playerControlTime"
                        VerticalAlignment="Top"
                        HorizontalAlignment="Left"

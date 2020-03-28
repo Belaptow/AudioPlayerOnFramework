@@ -17,7 +17,7 @@
             
             <TextBox Name="searchInput" 
                      Height="20"
-                     Margin="0, 0, 25, 0"
+                     Margin="0, 0, 115, 0"
                      HorizontalAlignment="Stretch"
                      KeyDown="searchInput_KeyDown"/>
             
@@ -30,6 +30,19 @@
                    MouseEnter="ImageButton_MouseEnter" 
                    MouseLeave="ImageButton_MouseLeave"
                    MouseUp="searchCommence_MouseUp"/>
+
+            <ComboBox Name="sitesChoice" 
+                      Height="20"
+                      Width="90"
+                      HorizontalAlignment="Right"
+                      Margin="0, 0, 25, 0"
+                      SelectionChanged="sitesChoice_SelectionChanged">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Path=Key}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
 
         </Grid>
 
@@ -115,6 +128,13 @@
                    Visibility="Hidden"
                    Margin="5, 30, 5, 0"
                    TextWrapping="Wrap"/>
+
+        <Button Name="testButton" Click="testButton_Click" 
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Right"
+                Height="30"
+                Width="30"
+                Visibility="Hidden"/>
 
     </Grid>
 </Window>

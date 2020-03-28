@@ -154,15 +154,30 @@ namespace AudioPlayer
                 foreach(string file in System.IO.Directory.GetFiles(workingFolderPath).Where(file => allowedExtensions.Any(file.ToLower().EndsWith)))
                 {
                     //Debug.WriteLine("filename = " + file);
-                    var newTrack = new Track //create new track based on file
+                    try
                     {
-                        name = System.IO.Path.GetFileName(file), //name of track with extension
-                        duration = GetAudioLength(file), //audiofile length in string format mm:ss
-                        extension = System.IO.Path.GetExtension(file), //extension of file
-                        filePath = file, //path to file
-                        audioTimeSpanLength = GetAudioTimeSpanLength(file) //audio length in seconds (TimeSpan)
-                    };
-                    tracksList.Add(newTrack);
+                        var newTrack = new Track //create new track based on file
+                        {
+                            name = System.IO.Path.GetFileName(file), //name of track with extension
+                            duration = GetAudioLength(file), //audiofile length in string format mm:ss
+                            extension = System.IO.Path.GetExtension(file), //extension of file
+                            filePath = file, //path to file
+                            audioTimeSpanLength = GetAudioTimeSpanLength(file) //audio length in seconds (TimeSpan)
+                        };
+                        tracksList.Add(newTrack);
+                    }
+                    catch (IOException ex)
+                    {
+                        Debug.WriteLine("\n" + ex + "\n");
+                        string caption = "Файл повреждён";
+                        string message = "Файл " + System.IO.Path.GetFileName(file) + " повреждён и не может быть воспроизведён, удалить?";
+                        System.Windows.MessageBoxButton buttons = System.Windows.MessageBoxButton.YesNo;
+                        if (System.Windows.MessageBox.Show(message, caption, buttons) == MessageBoxResult.Yes)
+                        {
+                            File.Delete(file);
+                        }
+                        continue;
+                    }
                 }
                 tracksDataGrid.ItemsSource = tracksList; //setting ItemSource automatically rerenders datagrid
                 if (tracksDataGrid.Items.Count > 0)
@@ -769,6 +784,23 @@ namespace AudioPlayer
                 Debug.WriteLine("\n" + ex + "\n");
             }
         }
+
+        #region Управление содержимым ItemsControl
+
+        private void deleteTrack_MouseUp(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Debug.WriteLine("Удаление трека");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        #endregion
+
     }
 
     //Track class, stores info about track
