@@ -16,6 +16,7 @@ using NAudio;
 using NAudio.Wave;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace AudioPlayer
 {
@@ -91,7 +92,7 @@ namespace AudioPlayer
                         string downloadUrl = "";
                         HtmlNode linkNode = node.SelectSingleNode(".//div[@class='musicset-track__download track-geo']")
                                                 .SelectSingleNode(".//a");
-                        if (linkNode != null) downloadUrl = linkNode.GetAttributeValue("href", "");
+                        if (linkNode != null) downloadUrl = site + linkNode.GetAttributeValue("href", "");
 
                         string json = GET(site + node.GetAttributeValue("data-url", ""), "");
                         Dictionary<string, string> jsonDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
@@ -212,6 +213,56 @@ namespace AudioPlayer
         {
             if (e.Key == Key.Enter) searchCommence_MouseUp(null, null);
         }
+
+        private void SaveButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            FrameworkElement fe = sender as FrameworkElement;
+            SaveTrack(((SearchResultTrack)fe.DataContext).downloadUrl, ((SearchResultTrack)fe.DataContext).name);
+        }
+
+        public void SaveTrack(string url, string name)
+        {
+            try
+            {
+                Debug.WriteLine(url);
+                Uri uri = new Uri(url);
+                WebClient client = new WebClient();
+                searchProgress.Maximum = 100;
+                searchProgress.Value = 0;
+                client.DownloadProgressChanged += Client_DownloadProgressChanged;
+                client.DownloadFileCompleted += Client_DownloadFileCompleted;
+                Debug.WriteLine(MainWindow.workingFolderPath);
+                client.DownloadFileAsync(uri, MainWindow.workingFolderPath + @"\" + name + ".mp3");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+                searchProgress.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void Client_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            Dispatcher.Invoke((Action)delegate ()
+            {
+                searchProgress.Visibility = Visibility.Hidden;
+            });
+            //MessageBox.Show("Загрузка завершена");
+            ((MainWindow)this.Owner).RefreshDataGrid();
+            //throw new NotImplementedException();
+        }
+
+        private void Client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            double bytesIn = double.Parse(e.BytesReceived.ToString());
+            double totalBytes = double.Parse(e.TotalBytesToReceive.ToString());
+            double percentage = bytesIn / totalBytes * 100;
+            Dispatcher.Invoke((Action)delegate ()
+            {
+                searchProgress.Value = percentage;
+            });
+            //throw new NotImplementedException();
+        }
     }
 
     public class SearchResultTrack
@@ -220,12 +271,18 @@ namespace AudioPlayer
         public string duration { get; set; }
         public string url { get; set; }
         public string downloadUrl { get; set; }
+        public bool canDownload { get; set; }
+        public string toolTip { get; set; }
+        public Visibility visibility { get; set; }
         public SearchResultTrack(string name, string duration, string url, string downloadUrl)
         {
             this.name = name;
             this.duration = duration;
             this.url = url;
             this.downloadUrl = downloadUrl;
+            this.canDownload = downloadUrl == "" ? false : true;
+            this.toolTip = this.canDownload ? "Загрузка" : "Загрузка недоступна";
+            this.visibility = this.canDownload ? Visibility.Visible : Visibility.Hidden;
         }
     }
 }

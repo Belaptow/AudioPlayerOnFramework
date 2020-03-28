@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AudioPlayer"
         mc:Ignorable="d"
-        Title="SearchAudio" Height="200" Width="300"
+        Title="SearchAudio" Height="200" Width="350"
         ResizeMode="NoResize"
         WindowStyle="None"
         Background="DarkGray"
@@ -32,14 +32,6 @@
                    MouseUp="searchCommence_MouseUp"/>
 
         </Grid>
-        
-        <Button Name="testButton" 
-                Height="30"
-                Width="30"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Panel.ZIndex="10"
-                Click="testButton_Click"/>
 
         <ProgressBar Name="searchProgress"
                      Width="200"
@@ -61,43 +53,55 @@
                         <Grid>
                             <TextBlock Text="{Binding Path=name}"
                                    Height="20"
-                                   Margin="2, 3, 69, 0"
+                                   Margin="2, 3, 89, 0"
                                    HorizontalAlignment="Stretch"/>
 
                             <Border Width="1"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Stretch"
                                     Background="LightGray"
-                                    Margin="0, 2, 66, 2"/>
+                                    Margin="0, 2, 86, 2"/>
 
                             <TextBlock Text="{Binding Path=duration}" 
-                                   Height="20"
-                                   HorizontalAlignment="Right"
-                                   Margin="0, 3, 36, 0"/>
+                                       Height="20"
+                                       HorizontalAlignment="Right"
+                                       Margin="0, 3, 56, 0"/>
 
                             <Border Width="1"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Stretch"
                                     Background="LightGray"
-                                    Margin="0, 2, 34, 2"/>
+                                    Margin="0, 2, 54, 2"/>
 
-                            <Image Source="../Icons/play.png" 
-                               Width="15"
-                               Height="15"
-                               Margin="0, 5, 19, 5"
-                               MouseEnter="ImageButton_MouseEnter" 
-                               MouseLeave="ImageButton_MouseLeave"
-                               HorizontalAlignment="Right"
-                               MouseUp="PlayButton_MouseUp"/>
+                            <Image  Source="../Icons/play.png" 
+                                    Width="15"
+                                    Height="15"
+                                    Margin="0, 5, 36, 5"
+                                    MouseEnter="ImageButton_MouseEnter" 
+                                    MouseLeave="ImageButton_MouseLeave"
+                                    HorizontalAlignment="Right"
+                                    MouseUp="PlayButton_MouseUp"/>
 
-                            <Image Source="../Icons/stop.png" 
-                               Width="15"
-                               Height="15"
-                               Margin="0, 5, 2, 5"
-                               MouseEnter="ImageButton_MouseEnter" 
-                               MouseLeave="ImageButton_MouseLeave"
-                               HorizontalAlignment="Right"
-                               MouseUp="StopButton_MouseUp"/>
+                            <Image  Source="../Icons/stop.png" 
+                                    Width="15"
+                                    Height="15"
+                                    Margin="0, 5, 20, 5"
+                                    MouseEnter="ImageButton_MouseEnter" 
+                                    MouseLeave="ImageButton_MouseLeave"
+                                    HorizontalAlignment="Right"
+                                    MouseUp="StopButton_MouseUp"/>
+
+                            <Image  Source="../Icons/save.png" 
+                                    Width="15"
+                                    Height="15"
+                                    Margin="0, 5, 2, 5"
+                                    MouseEnter="ImageButton_MouseEnter" 
+                                    MouseLeave="ImageButton_MouseLeave"
+                                    HorizontalAlignment="Right"
+                                    MouseUp="SaveButton_MouseUp"
+                                    IsEnabled="{Binding Path=canDownload}"
+                                    ToolTip="{Binding Path=toolTip}"
+                                    Visibility="{Binding Path=visibility}"/>
 
                         </Grid>
                     </DataTemplate>

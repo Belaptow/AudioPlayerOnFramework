@@ -40,10 +40,12 @@ namespace AudioPlayer
         public List<Window> childWindowsLeft = new List<Window>(); //left ones
         public List<Window> childWindowsRight = new List<Window>(); //right ones
 
+        bool fileJustAdded = false;
+
         public string[] playbackOptionsArray = new string[] { "loop.png", "repeat.png", "one.png", "random.png" }; //playback options, used in switch
         public int selectedPlaybackOptionIndex = 0; //current selected option index
 
-        public string workingFolderPath = @"defaultWorkingFolder"; //path to folder with audio files
+        public static string workingFolderPath = @"defaultWorkingFolder"; //path to folder with audio files
         public string exePath = AppDomain.CurrentDomain.BaseDirectory; //path to executable
         public string[] allowedExtensions = new string[] { ".wav", ".mp3" }; //filter of allowed extensions
 
@@ -139,6 +141,11 @@ namespace AudioPlayer
         {
             try
             {
+
+                outputDevice.Stop();
+                Thread.Sleep(100);
+                mainReader = null;
+
                 //resetting datagrid and list of tracks
                 tracksDataGrid.ItemsSource = null; 
                 tracksList.Clear();
@@ -328,7 +335,15 @@ namespace AudioPlayer
                 {
                     foreach(Track trackToDelete in tracksDataGrid.SelectedItems)
                     {
-                        File.Delete(trackToDelete.filePath);
+                        try
+                        {
+                            File.Delete(trackToDelete.filePath);
+                        }
+                        catch (IOException ex)
+                        {
+                            System.Windows.MessageBox.Show("Не удаётся удалить файл " + System.IO.Path.GetFileName(trackToDelete.filePath) + " потому что он занят другим процессом");
+                            continue;
+                        }
                         tracksList.Remove(trackToDelete);
                     }
                     tracksDataGrid.ItemsSource = null;
@@ -364,11 +379,21 @@ namespace AudioPlayer
                 ofd.Multiselect = true;
                 if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
+                    var selectedItem = tracksDataGrid.SelectedItem;
                     foreach(string file in ofd.FileNames)
                     {
                         try
                         {
                             File.Copy(file, workingFolderPath + @"\" + System.IO.Path.GetFileName(file));
+                            var newTrack = new Track //create new track based on file
+                            {
+                                name = System.IO.Path.GetFileName(file), //name of track with extension
+                                duration = GetAudioLength(file), //audiofile length in string format mm:ss
+                                extension = System.IO.Path.GetExtension(file), //extension of file
+                                filePath = workingFolderPath + @"\" + System.IO.Path.GetFileName(file), //path to file
+                                audioTimeSpanLength = GetAudioTimeSpanLength(file) //audio length in seconds (TimeSpan)
+                            };
+                            tracksList.Add(newTrack);
                         }
                         catch (Exception ex) //continues through selected files if file cannot be copied
                         {
@@ -376,7 +401,10 @@ namespace AudioPlayer
                             continue;
                         }
                     }
-                    RefreshDataGrid();
+                    fileJustAdded = true;
+                    tracksDataGrid.ItemsSource = null;
+                    tracksDataGrid.ItemsSource = tracksList;
+                    tracksDataGrid.SelectedItem = selectedItem;
                 }
             }
             catch (Exception ex)
@@ -446,7 +474,9 @@ namespace AudioPlayer
                 if (IsMoreThanOneTrackSelected()) return; //if user tries to play multiple tracks, do nothing
 
                 outputDevice = new WaveOutEvent(); //set audio output
-                mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath); //set reader as stream provider
+                string trackToPlay = ((Track)tracksDataGrid.SelectedItem).filePath;
+                //mainReader = new AudioFileReader(((Track)tracksDataGrid.SelectedItem).filePath); //set reader as stream provider
+                mainReader = new AudioFileReader(trackToPlay);
                 //visualizerWindow.CreateAggregator();
 
 
@@ -668,6 +698,11 @@ namespace AudioPlayer
                 playerControlSlider.Value = playerControlSlider.Minimum;
                 if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing) //if song is playing start playing selected song
                 {
+                    if (fileJustAdded)
+                    {
+                        fileJustAdded = false;
+                        return;
+                    }
                     outputDevice.Stop();
                     outputDevice = null;
                     mainReader = null;
