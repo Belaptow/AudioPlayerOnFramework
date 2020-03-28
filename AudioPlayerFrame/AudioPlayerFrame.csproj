@@ -38,6 +38,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HtmlAgilityPack, Version=1.11.23.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.11.23\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="NAudio, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.1.10.0\lib\net35\NAudio.dll</HintPath>
     </Reference>
@@ -74,6 +77,9 @@
     <Compile Include="EqualizerFolder\CustomBezierBuilder.cs" />
     <Compile Include="EqualizerFolder\Equalizer.cs" />
     <Compile Include="EqualizerFolder\EqualizerBand.cs" />
+    <Compile Include="SearchAudioFolder\SearchAudio.xaml.cs">
+      <DependentUpon>SearchAudio.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TimespanToDoubleConverter.cs" />
     <Compile Include="ToggleHideableWindow.xaml.cs">
       <DependentUpon>ToggleHideableWindow.xaml</DependentUpon>
@@ -105,6 +111,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SearchAudioFolder\SearchAudio.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ToggleHideableWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -201,6 +211,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\audiocheck.net_sin_1200Hz_-3dBFS_3s.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\research.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,0 +1,75 @@
+﻿<Window x:Class="AudioPlayer.SearchAudio"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AudioPlayer"
+        mc:Ignorable="d"
+        Title="SearchAudio" Height="200" Width="300"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        Background="DarkGray"
+        ShowInTaskbar="False">
+    <Grid>
+        <Grid Name="searchControls"
+              VerticalAlignment="Top"
+              Margin="5, 5, 5, 5">
+            
+            <TextBox Name="searchInput" 
+                     Height="20"
+                     Margin="0, 0, 25, 0"
+                     HorizontalAlignment="Stretch"/>
+            
+            <Image Name="searchCommence"
+                   Source="../Icons/research.png" 
+                   Width="20"
+                   Height="20"
+                   Margin="0, 0, 0, 0"
+                   HorizontalAlignment="Right"
+                   MouseEnter="ImageButton_MouseEnter" 
+                   MouseLeave="ImageButton_MouseLeave"
+                   MouseUp="searchCommence_MouseUp"/>
+
+            
+        </Grid>
+        <ItemsControl Name="searchResults"
+                      Background="LightGray"
+                      Margin="5, 30, 5, 5">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <TextBlock Text="{Binding Path=name}"
+                                   Height="20"
+                                   Margin="2, 3, 65, 0"
+                                   HorizontalAlignment="Stretch"/>
+                        
+                        <TextBlock Text="{Binding Path=duration}" 
+                                   Height="20"
+                                   HorizontalAlignment="Right"
+                                   Margin="0, 3, 35, 0"/>
+                        
+                        <Image Source="../Icons/play.png" 
+                               Width="15"
+                               Height="15"
+                               Margin="0, 5, 19, 5"
+                               MouseEnter="ImageButton_MouseEnter" 
+                               MouseLeave="ImageButton_MouseLeave"
+                               HorizontalAlignment="Right"
+                               MouseUp="PlayButton_MouseUp"/>
+
+                        <Image Source="../Icons/stop.png" 
+                               Width="15"
+                               Height="15"
+                               Margin="0, 5, 2, 5"
+                               MouseEnter="ImageButton_MouseEnter" 
+                               MouseLeave="ImageButton_MouseLeave"
+                               HorizontalAlignment="Right"
+                               MouseUp="StopButton_MouseUp"/>
+
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        
+    </Grid>
+</Window>

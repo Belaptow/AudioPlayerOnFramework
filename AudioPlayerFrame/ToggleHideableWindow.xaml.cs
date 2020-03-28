@@ -53,6 +53,10 @@ namespace AudioPlayer
                     windowToOpen = new Visualizer();
                     windowToOpen.Owner = Application.Current.MainWindow;
                     break;
+                case "SearchAudio":
+                    windowToOpen = new SearchAudio();
+                    windowToOpen.Owner = Application.Current.MainWindow;
+                    break;
                 default:
                     //MessageBox.Show("Некорретный аргумент для открытия окна");
                     toggleAttachedWindowButton.IsEnabled = false;
