@@ -12,6 +12,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Diagnostics;
+using NAudio;
+using NAudio.Wave;
+using HtmlAgilityPack;
+using Newtonsoft.Json;
 
 namespace AudioPlayer
 {
@@ -20,6 +24,12 @@ namespace AudioPlayer
     /// </summary>
     public partial class SearchAudio : Window
     {
+        public static bool playing = false;
+        string siteSearch = "https://zaycev.net/search.html?query_search=";
+        string site = "https://zaycev.net";
+        HtmlWeb webClient = new HtmlWeb();
+        HtmlDocument document = new HtmlDocument();
+        public MediaFoundationReader webReader;
         List<SearchResultTrack> tracksList = new List<SearchResultTrack>();
         public SearchAudio()
         {
@@ -44,16 +54,63 @@ namespace AudioPlayer
         {
             try
             {
-                tracksList.Add(new SearchResultTrack("real folks blues", "05:22", 0));
-                tracksList.Add(new SearchResultTrack("knock a little harder", "04:32", 1));
-                tracksList.Add(new SearchResultTrack("shine a little light", "02:56", 2));
-                tracksList.Add(new SearchResultTrack("don't bother none", "06:41", 3));
+                if (searchInput.Text == null || searchInput.Text == "") return;
+
+                noResults.Visibility = Visibility.Hidden;
+                tracksList.Clear();
+                searchResults.ItemsSource = null;
+
+                string query = searchInput.Text.Replace(' ', '+');
+                document = webClient.Load(siteSearch + query);
+
+                if (document.DocumentNode.SelectNodes("//div[@class='musicset-track-list__items']/div") == null)
+                {
+                    noResults.Visibility = Visibility.Visible;
+                    noResults.Text = "По запросу " + searchInput.Text + " ничего не найдено";
+                    return;
+                }
+
+                foreach (HtmlNode node in document.DocumentNode.SelectNodes("//div[@class='musicset-track-list__items']/div"))
+                {
+                    if (node.HasClass("track-is-banned")) continue;
+
+                    string fullName = node.SelectSingleNode(".//div[@class='musicset-track__fullname']")
+                                          .GetAttributeValue("title", "")
+                                          .Replace(@"&ndash;", "-")
+                                          .Replace(@"&#39;", @"'")
+                                          .Replace(@"&amp;", @"&");
+
+                    string duration = node.SelectSingleNode(".//div[@class='musicset-track__duration']").InnerText;
+
+                    string downloadUrl = "";
+                    HtmlNode linkNode = node.SelectSingleNode(".//div[@class='musicset-track__download track-geo']")
+                                            .SelectSingleNode(".//a");
+                    if (linkNode != null)  downloadUrl = linkNode.GetAttributeValue("href", "");
+
+                    string json = GET(site + node.GetAttributeValue("data-url", ""), "");
+                    Dictionary<string, string> jsonDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                    string urlToPlay = jsonDict["url"];
+
+                    tracksList.Add(new SearchResultTrack(fullName, duration, urlToPlay, downloadUrl));
+                }
+
                 searchResults.ItemsSource = tracksList;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("\n" + ex + "\n");
             }
+        }
+
+        public string GET(string Url, string Data)
+        {
+            System.Net.WebRequest req = System.Net.WebRequest.Create(Url + "?" + Data);
+            System.Net.WebResponse resp = req.GetResponse();
+            System.IO.Stream stream = resp.GetResponseStream();
+            System.IO.StreamReader sr = new System.IO.StreamReader(stream);
+            string Out = sr.ReadToEnd();
+            sr.Close();
+            return Out;
         }
 
         //Так как невозможно привязать событие к методу привязанного класса, реализовано через глобальный обработчик
@@ -64,7 +121,7 @@ namespace AudioPlayer
             try
             {
                 FrameworkElement fe = sender as FrameworkElement;
-                ((SearchResultTrack)fe.DataContext).playMouseUp();
+                StartTrack(((SearchResultTrack)fe.DataContext).url);
             }
             catch (Exception ex)
             {
@@ -72,16 +129,62 @@ namespace AudioPlayer
             }
         }
 
-        private void StopButton_MouseUp(object sender, MouseButtonEventArgs e)
+        private void StartTrack(string url)
         {
             try
             {
-
+                if (MainWindow.outputDevice.PlaybackState == PlaybackState.Playing || MainWindow.outputDevice.PlaybackState == PlaybackState.Paused) MainWindow.outputDevice.Stop();
+                webReader = new MediaFoundationReader(url);
+                //((MainWindow)Owner)
+                MainWindow.outputDevice.Init(webReader);
+                MainWindow.outputDevice.Play();
+                MainWindow.outputDevice.PlaybackStopped += OutputDevice_PlaybackStopped;
+                playing = true;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("\n" + ex + "\n");
             }
+        }
+
+        private void OutputDevice_PlaybackStopped(object sender, StoppedEventArgs e)
+        {
+            playing = false;
+            //throw new NotImplementedException();
+        }
+
+        private void StopButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (playing)
+                {
+                    MainWindow.outputDevice.Stop();
+                    playing = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        private void testButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                
+                
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
+        private void searchInput_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter) searchCommence_MouseUp(null, null);
         }
     }
 
@@ -90,24 +193,13 @@ namespace AudioPlayer
         public string name { get; set; }
         public string duration { get; set; }
         public string url { get; set; }
-        public int id { get; set; }
-        public SearchResultTrack(string name, string duration, int id)
+        public string downloadUrl { get; set; }
+        public SearchResultTrack(string name, string duration, string url, string downloadUrl)
         {
             this.name = name;
             this.duration = duration;
-            this.id = id;
-        }
-
-        public void playMouseUp()
-        {
-            try
-            {
-                Debug.WriteLine("Нажат плей на " + this.name);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("\n" + ex + "\n");
-            }
+            this.url = url;
+            this.downloadUrl = downloadUrl;
         }
     }
 }

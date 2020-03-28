@@ -18,7 +18,8 @@
             <TextBox Name="searchInput" 
                      Height="20"
                      Margin="0, 0, 25, 0"
-                     HorizontalAlignment="Stretch"/>
+                     HorizontalAlignment="Stretch"
+                     KeyDown="searchInput_KeyDown"/>
             
             <Image Name="searchCommence"
                    Source="../Icons/research.png" 
@@ -30,25 +31,47 @@
                    MouseLeave="ImageButton_MouseLeave"
                    MouseUp="searchCommence_MouseUp"/>
 
-            
         </Grid>
-        <ItemsControl Name="searchResults"
-                      Background="LightGray"
+        
+        <Button Name="testButton" 
+                Height="30"
+                Width="30"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Panel.ZIndex="10"
+                Click="testButton_Click"/>
+        
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
                       Margin="5, 30, 5, 5">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <TextBlock Text="{Binding Path=name}"
+
+            <ItemsControl Name="searchResults"
+                      Background="DarkGray">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <TextBlock Text="{Binding Path=name}"
                                    Height="20"
-                                   Margin="2, 3, 65, 0"
+                                   Margin="2, 3, 69, 0"
                                    HorizontalAlignment="Stretch"/>
-                        
-                        <TextBlock Text="{Binding Path=duration}" 
+
+                            <Border Width="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Stretch"
+                                    Background="LightGray"
+                                    Margin="0, 2, 66, 2"/>
+
+                            <TextBlock Text="{Binding Path=duration}" 
                                    Height="20"
                                    HorizontalAlignment="Right"
-                                   Margin="0, 3, 35, 0"/>
-                        
-                        <Image Source="../Icons/play.png" 
+                                   Margin="0, 3, 36, 0"/>
+
+                            <Border Width="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Stretch"
+                                    Background="LightGray"
+                                    Margin="0, 2, 34, 2"/>
+
+                            <Image Source="../Icons/play.png" 
                                Width="15"
                                Height="15"
                                Margin="0, 5, 19, 5"
@@ -57,7 +80,7 @@
                                HorizontalAlignment="Right"
                                MouseUp="PlayButton_MouseUp"/>
 
-                        <Image Source="../Icons/stop.png" 
+                            <Image Source="../Icons/stop.png" 
                                Width="15"
                                Height="15"
                                Margin="0, 5, 2, 5"
@@ -66,10 +89,18 @@
                                HorizontalAlignment="Right"
                                MouseUp="StopButton_MouseUp"/>
 
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-        
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            
+        </ScrollViewer>
+
+        <TextBlock Name="noResults"
+                   Text="По запросу"
+                   Visibility="Hidden"
+                   Margin="5, 30, 5, 0"
+                   TextWrapping="Wrap"/>
+
     </Grid>
 </Window>

@@ -48,7 +48,7 @@ namespace AudioPlayer
         public string[] allowedExtensions = new string[] { ".wav", ".mp3" }; //filter of allowed extensions
 
         public static AudioFileReader mainReader; //main audio reader and stream provider
-        public static WaveOutEvent outputDevice; //audio output
+        public static WaveOutEvent outputDevice = new WaveOutEvent(); //audio output
         public static WaveFileReader testSoundsReader;
 
         //Settings file to keep data between launches
@@ -426,6 +426,15 @@ namespace AudioPlayer
         {
             try
             {
+                if (SearchAudio.playing)
+                {
+                    if (outputDevice == null)
+                    {
+                        outputDevice = new WaveOutEvent();
+                    }
+                    outputDevice.Stop();
+                    SearchAudio.playing = false;
+                }
                 if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Playing) return; //do nothing if song is already playing
                 if (outputDevice != null && outputDevice.PlaybackState == PlaybackState.Paused) //if song is paused - unpause and start timer again
                 {
