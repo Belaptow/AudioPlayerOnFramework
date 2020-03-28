@@ -66,7 +66,7 @@ namespace AudioPlayer
 
                 if (document.DocumentNode.SelectNodes("//div[@class='musicset-track-list__items']/div") == null)
                 {
-                    noResults.Visibility = Visibility.Hidden;
+                    noResults.Visibility = Visibility.Visible;
                     noResults.Text = "По запросу " + searchInput.Text + " ничего не найдено";
                     return;
                 }
