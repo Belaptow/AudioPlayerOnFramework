@@ -36,6 +36,9 @@ namespace AudioPlayer
         public MediaFoundationReader webReader;
         List<SearchResultTrack> tracksList = new List<SearchResultTrack>();
         SearchResultTrack currentTrack;
+        public SolidColorBrush whiteBrush = Brushes.White;
+        public SolidColorBrush darkGrayBrush = Brushes.DarkGray;
+        bool click = false;
 
         public SearchAudio()
         {
@@ -109,7 +112,7 @@ namespace AudioPlayer
 
                         Dispatcher.Invoke((Action)delegate ()
                         {
-                            tracksList.Add(new SearchResultTrack(fullName, duration, urlToPlay, downloadUrl, (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA9A9A9"))));
+                            tracksList.Add(new SearchResultTrack(fullName, duration, urlToPlay, downloadUrl, darkGrayBrush));
                             searchProgress.Value++;
                         });
                     }
@@ -172,7 +175,7 @@ namespace AudioPlayer
 
                         Dispatcher.Invoke((Action)delegate ()
                         {
-                            tracksList.Add(new SearchResultTrack(name, duration, url, downloadUrl, (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA9A9A9"))));
+                            tracksList.Add(new SearchResultTrack(name, duration, url, downloadUrl, darkGrayBrush));
                             searchProgress.Value++;
                         });
                     }
@@ -229,7 +232,7 @@ namespace AudioPlayer
             {
                 
                 FrameworkElement fe = sender as FrameworkElement;
-                ((SearchResultTrack)fe.DataContext).brush = Brushes.Red;
+                if (currentTrack != null) currentTrack.brush = darkGrayBrush;
                 currentTrack = ((SearchResultTrack)fe.DataContext);
                 StartTrack(((SearchResultTrack)fe.DataContext).url);
             }
@@ -245,11 +248,12 @@ namespace AudioPlayer
             {
                 if (MainWindow.outputDevice.PlaybackState == PlaybackState.Playing || MainWindow.outputDevice.PlaybackState == PlaybackState.Paused)
                 {
-                    currentTrack.brush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA9A9A9")); //darkgray
                     MainWindow.outputDevice.PlaybackStopped -= OutputDevice_PlaybackStopped;
                     MainWindow.outputDevice.Stop();
                 }
-                currentTrack.brush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFC0C0C0")); //silver
+                currentTrack.brush = whiteBrush; //white
+                searchResults.ItemsSource = null;
+                searchResults.ItemsSource = tracksList;
                 webReader = new MediaFoundationReader(url);
                 MainWindow.equalizer = new SampleAggregator(webReader.ToSampleProvider(), MainWindow.bands);
                 MainWindow.equalizer.NotificationCount = webReader.WaveFormat.SampleRate / 100;
@@ -268,7 +272,9 @@ namespace AudioPlayer
 
         private void OutputDevice_PlaybackStopped(object sender, StoppedEventArgs e)
         {
-            currentTrack.brush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFA9A9A9")); //darkgray
+            currentTrack.brush = darkGrayBrush; //darkgray
+            searchResults.ItemsSource = null;
+            searchResults.ItemsSource = tracksList;
             playing = false;
         }
 
@@ -292,59 +298,13 @@ namespace AudioPlayer
         {
             try
             {
-                if (searchInput.Text == null || searchInput.Text == "") return;
-
-                noResults.Visibility = Visibility.Hidden;
-                tracksList.Clear();
-                searchResults.ItemsSource = null;
-
-                string query = searchInput.Text;
-
-                document = webClient.Load(siteSearch + query);
-
-                if (document.DocumentNode.SelectNodes("//div[@class='audio-list-entry-inner']") == null)
+                click = !click;
+                foreach(SearchResultTrack track in tracksList)
                 {
-                    noResults.Visibility = Visibility.Visible;
-                    noResults.Text = "По запросу " + searchInput.Text + " ничего не найдено";
-                    return;
+                    track.brush = click ? Brushes.Red : Brushes.Blue;
                 }
-
-                searchProgress.Visibility = Visibility.Visible;
-                searchProgress.Value = 0;
-                searchProgress.Maximum = document.DocumentNode.SelectNodes("//div[@class='audio-list-entry-inner']").Count;
-                Debug.WriteLine(searchProgress.Maximum);
-
-                new Task(() =>
-                {
-                    foreach (HtmlNode node in document.DocumentNode.SelectNodes("//div[@class='audio-list-entry-inner']"))
-                    {
-                        string name = node.SelectSingleNode(".//button[@class='play-button']")
-                                          .GetAttributeValue("data-title", "")
-                                          .Replace(@"&ndash;", "-")
-                                          .Replace(@"&#39;", @"'")
-                                          .Replace(@"&amp;", @"&");
-                        if (name == "" || name == null) continue;
-
-                        string duration = node.SelectSingleNode(".//div[@class='audio-duration']").InnerText;
-
-                        string url = node.SelectSingleNode(".//button[@class='play-button']").GetAttributeValue("data-audiofile", "");
-                        if (url == "" || url == null) continue;
-
-                        string downloadUrl = url + @"&download=1";
-
-                        //tracksList.Add(new SearchResultTrack(name, duration, url, downloadUrl));
-
-                        Dispatcher.Invoke((Action)delegate ()
-                        {
-                            searchProgress.Value++;
-                        });
-                    }
-                    Dispatcher.Invoke((Action)delegate ()
-                    {
-                        searchResults.ItemsSource = tracksList;
-                        searchProgress.Visibility = Visibility.Hidden;
-                    });
-                }).Start();
+                searchResults.ItemsSource = null;
+                searchResults.ItemsSource = tracksList;
             }
             catch (Exception ex)
             {
