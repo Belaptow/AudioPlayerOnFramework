@@ -186,6 +186,11 @@ namespace AudioPlayer
                     });
                 }).Start();
             }
+            catch (WebException ex)
+            {
+                if (ex.GetBaseException().GetType() == typeof(System.Security.Authentication.AuthenticationException)) MessageBox.Show("Ошибка сертификата сайта.\nПроверьте работоспособность сайта " + site);
+                Debug.WriteLine("\nВеб Исключение" + ex + "\n");
+            }
             catch (Exception ex)
             {
                 Debug.WriteLine("\n" + ex + "\n");
