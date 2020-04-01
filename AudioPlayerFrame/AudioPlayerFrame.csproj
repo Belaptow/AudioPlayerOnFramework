@@ -57,6 +57,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Printing" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -217,6 +218,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\research.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

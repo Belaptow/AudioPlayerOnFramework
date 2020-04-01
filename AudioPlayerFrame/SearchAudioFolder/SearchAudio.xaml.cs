@@ -17,6 +17,7 @@ using NAudio.Wave;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using System.Net;
+using System.Web;
 
 namespace AudioPlayer
 {
@@ -45,8 +46,9 @@ namespace AudioPlayer
             InitializeComponent();
             eventHandlers.Add("zaycev.net", searchCommenceZaycev_MouseUp);
             eventHandlers.Add("mp3-tut.info", searchCommencemp3Tut_MouseUp);
+            eventHandlers.Add("youtube.com", searchCommencefreemusicdownloads_MouseUp);
             sitesChoice.ItemsSource = eventHandlers;
-            sitesChoice.SelectedIndex = 1;
+            sitesChoice.SelectedIndex = 2;
         }
 
         #region Отображение кнопок-картинок
@@ -202,6 +204,87 @@ namespace AudioPlayer
             }
         }
 
+        private void searchCommencefreemusicdownloads_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (searchInput.Text == null || searchInput.Text == "") return;
+                Debug.WriteLine("searchCommencefreemusicdownloads_MouseUp");
+
+                siteSearch = "https://online.freemusicdownloads.world/results?search_query=";
+                site = "https://online.freemusicdownloads.world";
+                
+
+                noResults.Visibility = Visibility.Hidden;
+                tracksList.Clear();
+                searchResults.ItemsSource = null;
+
+                string query = searchInput.Text;
+
+                document = webClient.Load(siteSearch + query);
+
+                if (document.DocumentNode.SelectNodes("//div[@class='panel-body']") == null)
+                {
+                    noResults.Visibility = Visibility.Visible;
+                    noResults.Text = "По запросу " + searchInput.Text + " ничего не найдено";
+                    return;
+                }
+
+                searchProgress.Visibility = Visibility.Visible;
+                searchProgress.Value = 0;
+                searchProgress.Maximum = document.DocumentNode.SelectNodes("//div[@class='panel-body']").Count;
+
+                new Task(() =>
+                {
+                    foreach (HtmlNode node in document.DocumentNode.SelectNodes("//div[@class='panel-body']"))
+                    {
+                        HtmlNode formNode = node.SelectSingleNode(".//form[@class='result-form']");
+
+                        string name = WebUtility.HtmlDecode(formNode.SelectSingleNode(".//input[@name='title']")
+                                                                    .GetAttributeValue("value", ""));
+                        if (name == "" || name == null) continue;
+                        Debug.WriteLine(name);
+
+                        string duration = node.SelectSingleNode(".//small[@class='text-muted']").InnerText.Replace("\n", "");
+
+                        string videoId = formNode.SelectSingleNode(".//input[@name='video_id']")
+                                                 .GetAttributeValue("value", "");
+
+                        HtmlDocument tempDoc = webClient.Load("https://www.320youtube.com/watch?v=" + videoId);
+                        if (tempDoc.DocumentNode.SelectSingleNode("//div[@id='download']/a") == null)
+                        {
+                            Debug.WriteLine("Видео ИД = " + videoId);
+                            Debug.WriteLine(tempDoc.Text);
+                            continue;
+                        }
+                        string url = tempDoc.DocumentNode.SelectSingleNode("//div[@id='download']/a").GetAttributeValue("href", "");
+
+                        string downloadUrl = url;
+
+                        Dispatcher.Invoke((Action)delegate ()
+                        {
+                            tracksList.Add(new SearchResultTrack(name, duration, url, downloadUrl, darkGrayBrush));
+                            searchProgress.Value++;
+                        });
+                    }
+                    Dispatcher.Invoke((Action)delegate ()
+                    {
+                        searchResults.ItemsSource = tracksList;
+                        searchProgress.Visibility = Visibility.Hidden;
+                    });
+                }).Start();
+            }
+            catch (WebException ex)
+            {
+                if (ex.GetBaseException().GetType() == typeof(System.Security.Authentication.AuthenticationException)) MessageBox.Show("Ошибка сертификата сайта.\nПроверьте работоспособность сайта " + site);
+                Debug.WriteLine("\nВеб Исключение" + ex + "\n");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\n" + ex + "\n");
+            }
+        }
+
         private void searchCommence_MouseUp(object sender, MouseButtonEventArgs e)
         {
             try
@@ -261,7 +344,7 @@ namespace AudioPlayer
                     MainWindow.outputDevice.PlaybackStopped -= OutputDevice_PlaybackStopped;
                     MainWindow.outputDevice.Stop();
                 }
-                currentTrack.brush = whiteBrush; //white
+                if (currentTrack != null) currentTrack.brush = whiteBrush; //white
                 searchResults.ItemsSource = null;
                 searchResults.ItemsSource = tracksList;
                 webReader = new MediaFoundationReader(url);
@@ -308,13 +391,7 @@ namespace AudioPlayer
         {
             try
             {
-                click = !click;
-                foreach(SearchResultTrack track in tracksList)
-                {
-                    track.brush = click ? Brushes.Red : Brushes.Blue;
-                }
-                searchResults.ItemsSource = null;
-                searchResults.ItemsSource = tracksList;
+                StartTrack("https://downloadlagu-gratis.net/views/Gt0DwtaxCnQ");
             }
             catch (Exception ex)
             {
