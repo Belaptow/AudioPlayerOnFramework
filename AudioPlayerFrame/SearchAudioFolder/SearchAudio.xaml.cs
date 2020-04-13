@@ -240,6 +240,8 @@ namespace AudioPlayer
                     {
                         HtmlNode formNode = node.SelectSingleNode(".//form[@class='result-form']");
 
+                        if (formNode == null) continue;
+
                         string name = WebUtility.HtmlDecode(formNode.SelectSingleNode(".//input[@name='title']")
                                                                     .GetAttributeValue("value", ""));
                         if (name == "" || name == null) continue;
